@@ -1,0 +1,71 @@
+"""Add parent directory to path"""
+import os,sys,inspect
+currentdir_loc = os.path.abspath(inspect.getfile(inspect.currentframe()))
+currentdir = os.path.dirname(currentdir_loc)
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
+import unittest
+import numpy as np
+
+from snapshot_cluster import time_cluster
+from snapshot_cluster import offset_time
+from snapshot_cluster import ensure_three_digits
+
+class TestSnapshotCluster(unittest.TestCase):
+
+    def test_time_cluster(self):
+        """check that time_cluster returns a list of correctly
+        formatted time strings."""
+        time = "02:20"
+        size = 9
+        max_offset = 400
+        expected_cluster = ["02:19.600", "02:19.700", 
+                            "02:19.800", "02:19.900",
+                            "02:20.000", "02:20.100",
+                            "02:20.200", "02:20.300",
+                            "02:20.400"]
+        cluster = time_cluster(time, size, max_offset)
+        self.assertEqual(expected_cluster, cluster)
+
+    def test_offset_time_with_zero_offset(self):
+        """check that offset_time return a correctly formatted
+        string for zero offset."""
+        initial_time = '16:30'
+        offset = 0 # milliseconds
+        expected_time = '16:30.000'
+        time = offset_time(initial_time, offset)
+        self.assertEqual(expected_time, time)
+
+    def test_offset_time_with_positive_offset(self):
+        """check that offset_time return a correctly formatted
+        string for positive three digit offsets."""
+        initial_time = '16:30'
+        offset = 350 # milliseconds
+        expected_time = '16:30.350'
+        time = offset_time(initial_time, offset)
+        self.assertEqual(expected_time, time)
+
+    def test_offset_time_with_negative_offset(self):
+        """check that offset_time return a correctly formatted
+        string for negative three digit offsets."""
+        initial_time = '14:20'
+        offset = -270 # milliseconds
+        expected_time = '14:19.730'
+        time = offset_time(initial_time, offset)
+        self.assertEqual(expected_time, time)
+        
+    def test_ensure_three_digits(self):
+        """check that ensure_three_digits works correctly with 
+        a range of possible inputs"""
+        num1 = 4
+        expected_num1 = '004'
+        num2 = 36
+        expected_num2 = '036'
+        num3 = 467
+        expected_num3 = '467'
+        self.assertEqual(expected_num1, ensure_three_digits(num1))
+        self.assertEqual(expected_num2, ensure_three_digits(num2))
+        self.assertEqual(expected_num3, ensure_three_digits(num3))
+
+if __name__ == "__main__":
+    unittest.main()
