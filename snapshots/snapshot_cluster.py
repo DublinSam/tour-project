@@ -21,7 +21,7 @@ def get_dar_dimensions(src_video, DAR = (16.0 / 9.0)):
     return dar_dimensions
 
 
-def snapshot_cluster(src_video, dest_dir, times, dar_dims, cluster_size, max_offset):
+def snapshot_cluster(src_video, dest_dir, stage_id, times, dar_dims, cluster_size, max_offset):
     """creates a cluster of (cluster_size) snapshots from the video 
     specified by `src_video` at the times specified by times
     and saves them in `target_dir`."""
@@ -29,7 +29,7 @@ def snapshot_cluster(src_video, dest_dir, times, dar_dims, cluster_size, max_off
         target_dir = get_target_dir(dest_dir, selected_time)
         cluster = time_cluster(selected_time, cluster_size, max_offset)
         for time in cluster:
-            snapshot(src_video, target_dir, time=time, dimensions=dar_dims)
+            snapshot(src_video, target_dir, stage_id, time=time, dimensions=dar_dims)
     print 'snapshot clusters taken'
 
 def get_target_dir(path, selected_time):

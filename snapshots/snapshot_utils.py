@@ -1,7 +1,7 @@
 import string
 import subprocess
 
-def snapshot(input, output, time, dimensions):
+def snapshot(input, output, stage_id, time, dimensions):
     """takes snapshots of the video specified by input 
     at the given frequency and stores them as jpg's in 
     'output_dir'"""
@@ -14,7 +14,7 @@ def snapshot(input, output, time, dimensions):
                                 + ':' + str(dimensions['height']), 
                                 "-qscale:v", "2", # best jpeg quality possible
                                 "-vframes", "1",
-                                output + time[0:2] + '_' + time[3:] + '.jpg'))
+                                output + stage_id + '-' + time[0:2] + '_' + time[3:] + '.jpg'))
 
 def get_frame_dims(input):
     """return the frame dimensions of the video specified 

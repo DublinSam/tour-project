@@ -3,16 +3,16 @@ import cv2
 import shutil
 import numpy as np
 
-def extract_sharpest_frames(src_dir, target_dir, filter_size=120):
+def extract_sharpest_frames(src_dir, target_dir, stage_id, filter_size=120):
     root = src_dir
     dirnames = next(os.walk(root))[1]
     for dirname in dirnames:
-        extract_from_dir(root, dirname, target_dir, filter_size)
+        extract_from_dir(root, dirname, target_dir, stage_id, filter_size)
 
-def extract_from_dir(root, dirname, target_dir, filter_size):
+def extract_from_dir(root, dirname, target_dir, stage_id, filter_size):
     img_names = get_images_in_dir(root, dirname)
     sharpest_img = find_sharpest(img_names, filter_size)
-    target_name = target_dir + dirname[:2] + '_' + dirname[3:] + '.jpg'
+    target_name = target_dir + stage_id + '-' + dirname[:2] + '_' + dirname[3:] + '.jpg'
     shutil.copy(sharpest_img, target_name)
 
 def get_images_in_dir(root, dirname):
