@@ -6,7 +6,7 @@ from xml.dom import minidom
 def build_path(stage_id):
     """constructs the path to the .tcx file for the
     given stage."""
-    PATH = """/Users/samuelalbanie/aims_course/project_two/code/tour_data/strava_profiles/raw/"""
+    PATH = """/Users/samuelalbanie/aims_course/project_two/code/tour_data/gradient_data/strava_profiles/raw/"""
     return PATH + "Stage" + str(stage_id) + ".tcx"
 
 def get_xml_values(stage_id, target):

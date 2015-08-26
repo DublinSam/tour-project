@@ -21,7 +21,7 @@ class TestGradients(unittest.TestCase):
         with the required path."""
         stage_id = 5
         path = build_path(stage_id)
-        expected_path = "/Users/samuelalbanie/aims_course/project_two/code/tour_data/strava_profiles/raw/Stage5.tcx"
+        expected_path = "/Users/samuelalbanie/aims_course/project_two/code/tour_data/gradient_data/strava_profiles/raw/Stage5.tcx"
         self.assertEqual(expected_path, path)
 
     def test_get_xml_values(self):

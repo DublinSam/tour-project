@@ -4,7 +4,7 @@ import csv
 import numpy as np
 from scipy.misc import imread
 
-PATH = '/Users/samuelalbanie/aims_course/project_two/code/tour_data/stage_profile_silhouettes/'
+PATH = '/Users/samuelalbanie/aims_course/project_two/code/tour_data/gradient_data/stage_profile_silhouettes/'
 
 def all_stages():
     with open (PATH + 'stage_data.csv', 'rU') as csvfile:
