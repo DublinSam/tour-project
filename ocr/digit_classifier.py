@@ -4,15 +4,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
+from utils import top_border
 from utils import crop_frame
 from utils import find_contours
 from utils import border_rectangle
 from utils import get_fig_dimensions
 from utils import apply_threshold_to_image
+from utils import SIGN_WIDTH, SIGN_HEIGHT
+from distance_labels import digit_region
+from distance_labels import get_templates
 from train_classifier import DATA_PATH
 from train_classifier import MODEL_DIR
 
 TEST_FIGURES = DATA_PATH + '/test_figures/'
+
 
 def load_model():
     samples = np.loadtxt(MODEL_DIR + 'tdf_digit_samples.data', np.float32)
@@ -22,12 +27,13 @@ def load_model():
     model.train(samples, responses)
     return model
 
-def create_test_fig(km_img, rectangle):
-    fig_width, fig_height = get_fig_dimensions()
+def create_test_fig(km_img, top, rectangle):
+    fig_width, fig_height = get_fig_dimensions(SIGN_WIDTH, SIGN_HEIGHT)
     fig, ax = plt.subplots(1,1)
     fig.set_size_inches(fig_width, fig_height)
     fig.subplots_adjust(hspace=0, wspace=0)
     ax.imshow(km_img, cmap = plt.cm.Greys_r)
+    ax.add_patch(patches.Rectangle(**top))
     ax.add_patch(patches.Rectangle(**rectangle))
     ax.set_axis_off()
     plt.savefig(TEST_FIGURES + 'current_fig.jpg', bbox_inches='tight', pad_inches=0)
@@ -39,9 +45,12 @@ def preprocess(img_path):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     if img is None:
         raise ValueError('Image not found')
-    km_img = crop_frame(img)
+    # km_img = crop_frame(img)
+    templates = get_templates()
+    km_img = digit_region(img, templates['flag'])
+    top = top_border(km_img)
     rectangle = border_rectangle(km_img)
-    create_test_fig(km_img, rectangle)
+    create_test_fig(km_img, top, rectangle)
 
 def classify(img_path, model):
     """Apply kNN with k = 1 to categorize each digit in the image."""

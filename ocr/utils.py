@@ -1,6 +1,21 @@
 import cv2
 import numpy as np
 
+SIGN_WIDTH = 52
+SIGN_HEIGHT = 18
+
+def get_jpgs_in_dir(image_dir):
+    """returns list of the .jpg files in the given
+    directory, together with the root path."""
+    frames = []
+    root = None
+    for root, dirs, files in os.walk(image_dir):
+        for file in files:
+            if file.endswith('.jpg'):
+                frames.append(file)
+        root = root
+    return root, frames
+
 def apply_threshold_to_image(path):
     """apply a uniform threshold to convert the image located at
     `path` to binary.  he binary image is then inverted to help 
@@ -42,6 +57,19 @@ def border_rectangle(img, thickness=5):
         'xy': (0,0),
         'width': img.shape[1] - 1,
         'height': img.shape[0] - 1,
+        'fill': False,
+        'edgecolor': "#777777",
+        'linewidth': thickness
+    }
+    return rectangle
+
+def top_border(img, thickness=5):
+    """returns a description of a rectangle that forms
+    a thick border along the top of the image."""
+    rectangle = {
+        'xy': (0,0),
+        'width': img.shape[1] - 1,
+        'height': int(thickness / 2),
         'fill': False,
         'edgecolor': "#777777",
         'linewidth': thickness
