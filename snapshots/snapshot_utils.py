@@ -54,11 +54,39 @@ def get_num_frames(duration, fps):
     """returns the total number of frames contained
     in a video with the duration specified as a string
     HH:MM:SS"""
+    seconds = time_to_seconds(duration)
+    num_frames = seconds * fps
+    return num_frames
+
+def time_to_seconds(duration):
+    """returns the total number of seconds in a 
+    duration of the format HH:MM:SS"""
     hours = int(duration[:2])
     mins = int(duration[3:5])
     seconds = int(duration[6:8]) + (60 * mins) + (60 * 60 * hours)
-    num_frames = seconds * fps
-    return num_frames
+    return seconds
+
+def seconds_to_time(num_seconds):
+    """returns a duration in the format HH:MM:SS
+    produced from the given number of seconds"""
+    hours = int(num_seconds / 3600)
+    hour_seconds = hours * 3600
+    mins = int((num_seconds - hour_seconds) / 60)
+    min_seconds = mins * 60
+    seconds = num_seconds - hour_seconds - min_seconds
+    time = digit_string(hours) + ":" + digit_string(mins) + ":" + digit_string(seconds)
+    
+    return time
+
+def digit_string(num):
+    """returns string form of num in the form NN, 
+    where numbers less than 10, for instance 6, 
+    becomes '06'"""
+    digit_string = str(num)
+    if num < 10:
+        digit_string = "0" + digit_string
+    return digit_string
+        
 
 def clean_msg(msg):
     """cleans up messages by removing whitespace

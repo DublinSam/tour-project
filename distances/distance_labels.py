@@ -7,7 +7,8 @@ from utils import crop_frame
 from snapshot_utils import snapshot
 from snapshot_utils import get_video_duration
 from snapshot_utils import time_to_seconds, seconds_to_time
-from snapshot_cluster import get_dar_dimensions
+from snapshot_cluster import get_dar_dimensions, snapshot_cluster
+from sharpness_rank import extract_sharpest_frames
 
 PATH = '/Users/samuelalbanie/aims_course/project_two/code/DVD/'
 TEMPLATE_PATH = PATH + 'templates/'
@@ -84,11 +85,11 @@ def crop_to_sign(img, flag_template):
 def contains_chequered_flag(img, template, confidence):
     """returns true if the image contains a chequered 
     flag in SIGN_REGION"""
-    sign_frame = crop_to_sign(img, template)
-    has_flag = contains_template(sign_frame, template, confidence)
+    # sign_frame = crop_to_sign(img, template)
+    has_flag = contains_template(img, template, confidence)
     return has_flag
 
-def is_distance_measured_in_km(img, templates):
+def is_distance_measured_in_km(img, templates, confidence):
     """returns true if the distance on the 'to go' sign is 
     measured in km (i.e. it contains the 'km' template)."""
     sign_location = find_sign_location(img, templates['flag'])
@@ -96,12 +97,14 @@ def is_distance_measured_in_km(img, templates):
     in_km = contains_template(cropped_img, templates['km'], confidence)
     return in_km
 
-def is_distance_labeled(img_name, templates, confidence=0.95):
+def is_distance_labeled(img_name, confidence=0.95):
     """returns true if the image contains BOTH a chequred flag 
     and the distance is measured in km."""
-    img = cv2.imread(img_name, cv2.CV_LOAD_IMAGE_GRAYSCALE)              
+    img = cv2.imread(img_name, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    templates = get_templates()              
     has_flag = contains_chequered_flag(img, templates['flag'], confidence)
-    in_km = is_distance_measured_in_km(img, templates)
+    if has_flag:
+        in_km = is_distance_measured_in_km(img, templates, confidence)
     return has_flag and in_km
 
 def get_templates(flag_path=FLAG_PATH, km_path=KM_PATH):
@@ -112,21 +115,28 @@ def get_templates(flag_path=FLAG_PATH, km_path=KM_PATH):
     templates = {'flag': flag_template, 'km': km_template}
     return templates
 
-def take_snapshot_every_second(src_video, target_dir, stage_id, DAR):
+def take_snapshot_every_second(src_video, tmp_clusters, target_dir, stage_id, DAR):
     """saves a snapshot of src_video every second 
     and saves it to the target_dir."""
     DAR = DAR
     dar_dims = get_dar_dimensions(src_video, DAR=DAR)
     times = formatted_times_in_video(src_video)
-    for time in times:
-        snapshot(src_video, target_dir, stage_id, 
-            time=time, dimensions=dar_dims)
+    cluster_size = 9
+    max_offset = 200
+    # for time in times:        
+        # snapshot(src_video, target_dir, stage_id, time=time, dimensions=dar_dims)
+    snapshot_cluster(src_video, tmp_clusters, stage_id,
+            times=times, dar_dims=dar_dims, 
+            cluster_size=cluster_size, max_offset=max_offset)
+    extract_sharpest_frames(tmp_clusters, target_dir, stage_id, sigma=3)
+
+        
+        
 
 def extract_labeled_snapshots(src_dir, target_dir):
     all_files = next(os.walk(src_dir))[2]
     imgs = [src_dir + fname for fname in all_files if fname.endswith('.jpg')]
-    templates = get_templates()
-    labeled_imgs = [img for img in imgs if is_distance_labeled(img, templates)]
+    labeled_imgs = [img for img in imgs if is_distance_labeled(img)]
     for labeled_img in labeled_imgs:
         root, img_name = os.path.split(labeled_img)
         target_name = target_dir + img_name
