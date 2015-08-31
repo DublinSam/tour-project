@@ -7,9 +7,10 @@ def snapshot(input, output, stage_id, time, dimensions):
     'output_dir'"""
     snap_ps = subprocess.call(("ffmpeg", 
                                 "-ss", time,
-                                "-noaccurate_seek",
+    #not valid for ubuntu server                            "-noaccurate_seek",
                                 "-i", input,
-                                "-filter:v",
+    #not valid for ubuntu server                            "-filter:v",
+                                "-vf",
                                 "scale=" + str(dimensions['width']) 
                                 + ':' + str(dimensions['height']), 
                                 "-qscale:v", "2", # best jpeg quality possible
@@ -25,7 +26,7 @@ def get_frame_dims(input):
     viewed (look up Storage Aspect Ratio vs Display Aspect
     Ratio for more details)."""
     data_ps = subprocess.Popen(("ffprobe", "-v", "quiet",
-                                "-print_format", "json",
+    #not valid for ubuntu server       "-print_format", "json",
                                 "-show_streams",
                                 input),
                                 stdout=subprocess.PIPE, 
@@ -33,8 +34,10 @@ def get_frame_dims(input):
     data_msg = subprocess.check_output(('grep', 'height\|width'), 
                                     stdin=data_ps.stdout)
     msg = clean_msg(data_msg)
-    dims = msg[:-1].split(',') # remove trailing comma before splitting
-    dims = [int(dim.split(':')[1]) for dim in dims]
+    #not valid for ubuntu server  dims = msg[:-1].split(',') # remove trailing comma before splitting
+    split_index = msg.index('height')
+    dims = [msg[:split_index], msg[split_index:]]
+    dims = [int(dim.split('=')[1]) for dim in dims]
     dimensions = {'width': dims[0],
                   'height': dims[1]}
     return dimensions
