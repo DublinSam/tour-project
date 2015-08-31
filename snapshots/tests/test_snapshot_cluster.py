@@ -9,7 +9,9 @@ import numpy as np
 
 from snapshot_cluster import time_cluster
 from snapshot_cluster import offset_time
+from snapshot_cluster import ensure_two_digits
 from snapshot_cluster import ensure_three_digits
+
 
 class TestSnapshotCluster(unittest.TestCase):
 
@@ -45,6 +47,15 @@ class TestSnapshotCluster(unittest.TestCase):
         time = offset_time(initial_time, offset)
         self.assertEqual(expected_time, time)
 
+    def test_negative_offset_single_digit_seconds(self):
+        """check that offset_time return a correctly formatted
+        string for positive three digit offsets."""
+        initial_time = '00:02'
+        offset = -150 # milliseconds
+        expected_time = '00:01.850'
+        time = offset_time(initial_time, offset)
+        self.assertEqual(expected_time, time)
+
     def test_offset_time_with_negative_offset(self):
         """check that offset_time return a correctly formatted
         string for negative three digit offsets."""
@@ -53,7 +64,21 @@ class TestSnapshotCluster(unittest.TestCase):
         expected_time = '14:19.730'
         time = offset_time(initial_time, offset)
         self.assertEqual(expected_time, time)
+
+    def test_ensure_two_digits(self):
+        """check that ensure_two_digits works correctly with 
+        a range of possible inputs"""
+        num1 = 0
+        expected_num1 = '00'
+        num2 = 3
+        expected_num2 = '03'
+        num3 = 67
+        expected_num3 = '67'
+        self.assertEqual(expected_num1, ensure_two_digits(num1))
+        self.assertEqual(expected_num2, ensure_two_digits(num2))
+        self.assertEqual(expected_num3, ensure_two_digits(num3))
         
+
     def test_ensure_three_digits(self):
         """check that ensure_three_digits works correctly with 
         a range of possible inputs"""

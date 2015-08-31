@@ -53,10 +53,21 @@ def offset_time(time, offset):
         formatted_time =  time + '.' + str(offset)
     else:
         mins = time[:2]
-        seconds = int(time[-2:]) - 1
+        seconds = ensure_two_digits(int(time[-2:]) - 1)
         milliseconds = 1000 + offset
         formatted_time =  mins + ':' + str(seconds) + '.' + str(milliseconds)
     return formatted_time
+
+
+def ensure_two_digits(num):
+    """takes an int `num` between 0 and 99 returns a number 
+    between 00 and 09 as a string that has two digits (i.e.
+    returns '20' rather than '2')"""
+    if 10 <= num <= 99:
+        two_digit_num = str(num)
+    else:
+        two_digit_num = '0' + str(num)
+    return two_digit_num
 
 def ensure_three_digits(num):
     """takes an int `num` between 0 and 999 returns a number 
