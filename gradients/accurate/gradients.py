@@ -2,6 +2,10 @@ from __future__ import division
 
 import numpy as np
 from xml.dom import minidom
+from scipy_recipes import smooth
+
+WINDOW_LENGTH = 199
+
 
 def build_path(stage_id):
     """constructs the path to the .tcx file for the
@@ -23,10 +27,11 @@ def get_xml_values(stage_id, target):
     return values
 
 def get_elevations(stage_id):
-    """returns a list of elevations for the given stage."""
+    """returns a list of smoothed elevations for the given stage."""
     elevations = get_xml_values(stage_id, "elevations")
     elevations = [float(elevation) for elevation in elevations]
-    return elevations
+    smooth_elevations = smooth(np.array(elevations), WINDOW_LENGTH, 'flat')
+    return smooth_elevations
 
 def get_precise_distances(stage_id):
     """returns a list of 'precise' distances, measured 
@@ -40,17 +45,19 @@ def get_precise_distances(stage_id):
 def calculate_gradients(elevations, distances):
     """returns a list of gradients. These are calculated so 
     that the gradient at marker n is estimated using the altitudes
-    of markers n-1 and n. The gradient for the first 
-    segment i always set to zero."""
-    gradients = [0]
+    of markers n - 6 and n + 6. The gradient for the first eight segments
+    are set to zero."""
+    gradients = 8 * [0]
     for idx, elevation in enumerate(elevations):
-        if idx > 0:
-            distance = distances[idx] - distances[idx - 1]
-            gradient = (elevations[idx] - elevations[idx - 1]) / distance
+        if idx > 7 and idx < len(elevations) - 9:
+            distance = distances[idx + 8] - distances[idx - 8]
+            gradient = (elevations[idx + 8] - elevations[idx - 8]) / distance
             gradients.append(gradient)
+    gradients.extend(8 * [0])
     # convert gradients to percentages
     gradients = [round(gradient * 100,1) for gradient in gradients] 
-    return gradients
+    smooth_gradients = smooth(np.array(gradients), WINDOW_LENGTH, 'flat')[:-1]
+    return smooth_gradients
 
 def find_gradient_at_distance(target_distance, distances, gradients):
     """finds the gradient at the marker located closest to 

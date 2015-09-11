@@ -50,14 +50,6 @@ class TestGradients(unittest.TestCase):
         full_distance = precise_distances[-1]
         self.assertEqual(expected_distance, full_distance)
 
-    def test_calculate_gradients(self):
-        """check that calculate_gradients is working as expected."""
-        elevations = [0, 5, 10, 15, 20]
-        distances = [0, 10, 20, 30, 40]
-        expected_gradients = [0, 50, 50, 50, 50] # first gradient is always 0
-        gradients = calculate_gradients(elevations, distances)
-        self.assertEqual(expected_gradients, gradients)
-
     def test_find_gradient_at_distance(self):
         """check that find_gradient_at_distance works as 
         expected with known values."""
@@ -104,15 +96,6 @@ class TestGradients(unittest.TestCase):
             length = round(max(distances) / 1000, 2)
             expected_length = data['length']
             self.assertEqual(expected_length, length)
-
-    def test_sanity_check_on_gradients_for_climbs(self):
-        """check that some steep climbs have large positive 
-        gradients."""
-        climbs = [{'stage_id': 1, 'km_to_go': 87.8},
-                  {'stage_id': 2, 'km_to_go': 59.2},]
-        for climb in climbs:
-            gradient = find_gradient(climb['stage_id'], climb['km_to_go'])
-            self.assertTrue(gradient > 10)
         
 
 
