@@ -6,16 +6,18 @@ from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 from collections import Counter
 
-from utils import crop_frame
-from utils import top_border
-from utils import find_contours
-from utils import get_jpgs_in_dir
-from utils import border_rectangle
-from utils import get_fig_dimensions
-from utils import apply_threshold_to_image
-from utils import SIGN_WIDTH, SIGN_HEIGHT
+from file_utils import get_jpgs_in_dir
+from image_utils import get_fig_dimensions
+from image_utils import crop_frame
+from image_utils import top_border
+from image_utils import find_contours
+from image_utils import white_divider
+from image_utils import border_rectangle
+from image_utils import apply_threshold_to_image
+from template_matching import get_templates
+from template_matching import digit_region
+from template_matching import SIGN_WIDTH, SIGN_HEIGHT
 
-from distance_labels import digit_region
 
 # Path to data (sample frames from sports footage)
 DATA_PATH = '/Users/samuelalbanie/aims_course/project_two/code/tour_data/project_tools/ocr/data'
@@ -84,10 +86,13 @@ def construct_training_image(src_dir, target_dir, num_cols=3):
         km_img = digit_region(img, templates['flag'])
         rectangle = border_rectangle(km_img)
         top = top_border(km_img)
+        divider = white_divider(km_img)
         ax.imshow(km_img, cmap = plt.cm.Greys_r)
         ax.add_patch(patches.Rectangle(**rectangle))
+        ax.add_patch(patches.Rectangle(**divider))
         ax.add_patch(patches.Rectangle(**top))
         ax.set_axis_off()
+    fig.subplots_adjust(hspace=0.1)
     plt.savefig(target_dir + 'digit_examples.jpg', bbox_inches='tight', pad_inches=0)
 
 def manually_label_digits(src_dir):
