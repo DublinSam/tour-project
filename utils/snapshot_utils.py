@@ -5,6 +5,7 @@ def snapshot(input, output, stage_id, time, dimensions):
     """takes snapshots of the video specified by input 
     at the given frequency and stores them as jpg's in 
     'output_dir'"""
+    time = ffmpeg_format_time(time)
     snap_ps = subprocess.call(("ffmpeg", 
                                 "-ss", time,
     #not valid for ubuntu server                            "-noaccurate_seek",
@@ -40,11 +41,21 @@ def get_frame_dims(input):
     dims = [int(dim.split('=')[1]) for dim in dims]
     dimensions = {'width': dims[0],
                   'height': dims[1]}
-    return dimensionsDAR = (16.0 / 9.0)):
+    return dimensions
+
+def ffmpeg_format_time(time):
+    """To work with ffmpeg, we must convert time 
+    formats from HH:MM:SS:MMM to HH:MM:SS.MMM
+    (the last period is only necesssary for this stage)."""
+    ffmpeg_time = time[:8] + '.' + time[9:]
+    return ffmpeg_time
+
+def get_dar_dimensions(src_video, DAR = (16.0 / 9.0)):
     sar_dimensions = get_frame_dims(src_video)
     dar_dimensions = {'width': sar_dimensions['height'] * DAR, 
                   'height': sar_dimensions['height']}
     return dar_dimensions
+
 
 def clean_msg(msg):
     """cleans up messages by removing whitespace
