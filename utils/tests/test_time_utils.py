@@ -8,17 +8,17 @@ import unittest
 import numpy as np
 
 from time_utils import offset_time
+from time_utils import get_contiguous_intervals
 from time_utils import time_cluster, ensure_two_digits
 from time_utils import get_num_frames, ensure_three_digits
 from time_utils import time_to_seconds, seconds_to_time
-
 
 class TestTimeUtils(unittest.TestCase):
 
     def test_time_to_seconds(self):
         """check that time_to_seconds correctly calculates
         the number of seconds in a given duration"""
-        duration = "03:54:08"
+        duration = "03:54:08:000"
         expected_num_seconds = 14048
         num_seconds = time_to_seconds(duration)
         self.assertEqual(expected_num_seconds, num_seconds)
@@ -29,7 +29,7 @@ class TestTimeUtils(unittest.TestCase):
         of the format HH:MM.SS when there are less than 
         ten hours worth of seconds."""
         num_seconds = 20042
-        expected_time = "05:34:02"
+        expected_time = "05:34:02:000"
         time = seconds_to_time(num_seconds)
         self.assertEqual(expected_time, time)
 
@@ -38,12 +38,12 @@ class TestTimeUtils(unittest.TestCase):
         converts the number of seconds to a time 
         of the format HH:MM.SS"""
         num_seconds = 40991
-        expected_time = "11:23:11"
+        expected_time = "11:23:11:000"
         time = seconds_to_time(num_seconds)
         self.assertEqual(expected_time, time)
 
     def test_offset_time(self):
-        sample_time = '00:20:30'
+        sample_time = '00:20:30:000'
         offset = -50
         expected_time = '00:20:29:950'
         time = offset_time(sample_time, offset)
@@ -53,7 +53,7 @@ class TestTimeUtils(unittest.TestCase):
         """check that get_num_frames correctly 
         calculates the number of frames in a given
         time period."""
-        duration = "01:13:12"
+        duration = "01:13:12:000"
         fps = 29
         expected_num_frames = 127368
         num_frames = get_num_frames(duration, fps)
@@ -145,6 +145,26 @@ class TestTimeUtils(unittest.TestCase):
         self.assertEqual(expected_num1, ensure_three_digits(num1))
         self.assertEqual(expected_num2, ensure_three_digits(num2))
         self.assertEqual(expected_num3, ensure_three_digits(num3))
+
+    def test_get_contiguous_intervals(self):
+        """check that get_contiguous_intervals() handles 
+        different sizes of inputs in an intelligient way."""
+
+        times1 = ['00:01:01:000']
+        expected_intervals1 = [('00:01:01:000', '00:01:01:000')]
+        intervals1 = get_contiguous_intervals(times1)
+        self.assertEqual(expected_intervals1, intervals1)
+
+        times2 = ['00:01:01:000', '00:01:02:000']
+        expected_intervals2 = [('00:01:01:000', '00:01:02:000')]
+        intervals2 = get_contiguous_intervals(times2)
+        self.assertEqual(expected_intervals2, intervals2)
+
+        times3 = ['00:01:01:000', '00:01:02:000', '00:01:04:000']
+        expected_intervals3 = [('00:01:01:000', '00:01:02:000'), 
+                               ('00:01:04:000', '00:01:04:000')]
+        intervals3 = get_contiguous_intervals(times3)
+        self.assertEqual(expected_intervals3, intervals3)
 
 if __name__ == "__main__":
     unittest.main()
