@@ -2,13 +2,14 @@ import os
 import cv2
 import shutil
 import numpy as np
+from tqdm import *
 from os import path
 from scipy.ndimage.filters import gaussian_laplace
 
 
 def extract_sharpest_frames(src_dir, target_dir, stage_id, sigma=3):
     dirnames = next(os.walk(src_dir))[1]
-    for dirname in dirnames:
+    for dirname in tqdm(dirnames):
         extract_from_dir(src_dir, dirname, target_dir, stage_id, sigma)
 
 
