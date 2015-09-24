@@ -5,7 +5,6 @@ def snapshot(input, output, stage_id, time, dimensions):
     """takes snapshots of the video specified by input 
     at the given frequency and stores them as jpg's in 
     'output_dir'"""
-    time = ffmpeg_format_time(time)
     snap_ps = subprocess.call(("ffmpeg", 
                                 "-ss", time,
     #not valid for ubuntu server                            "-noaccurate_seek",
@@ -43,19 +42,54 @@ def get_frame_dims(input):
                   'height': dims[1]}
     return dimensions
 
-def ffmpeg_format_time(time):
-    """To work with ffmpeg, we must convert time 
-    formats from HH:MM:SS:MMM to HH:MM:SS.MMM
-    (the last period is only necesssary for this stage)."""
-    ffmpeg_time = time[:8] + '.' + time[9:]
-    return ffmpeg_time
+def get_video_duration(path):
+    """returns duration of the video specified by `path`
+    as a string in the format HH:MM:SS"""
+    ffmpeg_ps = subprocess.Popen(("ffmpeg", "-i", path),
+                                 stdout=subprocess.PIPE, 
+                                 stderr=subprocess.STDOUT)
+    output = subprocess.check_output(('grep', 'Duration'), 
+                                    stdin=ffmpeg_ps.stdout)
+    duration = output[12:20]
+    return duration
 
-def get_dar_dimensions(src_video, DAR = (16.0 / 9.0)):
-    sar_dimensions = get_frame_dims(src_video)
-    dar_dimensions = {'width': sar_dimensions['height'] * DAR, 
-                  'height': sar_dimensions['height']}
-    return dar_dimensions
+def get_num_frames(duration, fps):
+    """returns the total number of frames contained
+    in a video with the duration specified as a string
+    HH:MM:SS"""
+    seconds = time_to_seconds(duration)
+    num_frames = seconds * fps
+    return num_frames
 
+def time_to_seconds(duration):
+    """returns the total number of seconds in a 
+    duration of the format HH:MM:SS"""
+    hours = int(duration[:2])
+    mins = int(duration[3:5])
+    seconds = int(duration[6:8]) + (60 * mins) + (60 * 60 * hours)
+    return seconds
+
+def seconds_to_time(num_seconds):
+    """returns a duration in the format HH:MM:SS
+    produced from the given number of seconds"""
+    hours = int(num_seconds / 3600)
+    hour_seconds = hours * 3600
+    mins = int((num_seconds - hour_seconds) / 60)
+    min_seconds = mins * 60
+    seconds = num_seconds - hour_seconds - min_seconds
+    time = digit_string(hours) + ":" + digit_string(mins) + ":" + digit_string(seconds)
+    
+    return time
+
+def digit_string(num):
+    """returns string form of num in the form NN, 
+    where numbers less than 10, for instance 6, 
+    becomes '06'"""
+    digit_string = str(num)
+    if num < 10:
+        digit_string = "0" + digit_string
+    return digit_string
+        
 
 def clean_msg(msg):
     """cleans up messages by removing whitespace
