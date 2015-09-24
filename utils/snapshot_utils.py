@@ -45,19 +45,22 @@ def get_frame_dims(input):
     stored video, not necessarily how it is supposed to be
     viewed (look up Storage Aspect Ratio vs Display Aspect
     Ratio for more details)."""
-    data_ps = subprocess.Popen(("ffprobe", "-v", "quiet",
-                                "-print_format", "json",
-                                "-show_streams",
-                                input),
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.STDOUT)
-    data_msg = subprocess.check_output(('grep', 'height\|width'), 
-                                    stdin=data_ps.stdout)
-    msg = clean_msg(data_msg)
-    dims = msg[:-1].split(',') # remove trailing comma before splitting
-    dims = [int(dim.split(':')[1]) for dim in dims]
-    dimensions = {'width': dims[0],
-                  'height': dims[1]}
+    if sys.platform == 'darwin':
+        data_ps = subprocess.Popen(("ffprobe", "-v", "quiet",
+                                    "-print_format", "json",
+                                    "-show_streams",
+                                    input),
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.STDOUT)
+        data_msg = subprocess.check_output(('grep', 'height\|width'), 
+                                        stdin=data_ps.stdout)
+        msg = clean_msg(data_msg)
+        dims = msg[:-1].split(',') # remove trailing comma before splitting
+        dims = [int(dim.split(':')[1]) for dim in dims]
+        dimensions = {'width': dims[0],
+                      'height': dims[1]}
+    else:
+        dimensions = {'height': 576, 'width': 720}
     return dimensions
 
 def ffmpeg_format_time(time):
