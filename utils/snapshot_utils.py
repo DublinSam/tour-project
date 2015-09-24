@@ -11,31 +11,18 @@ def snapshot(input, output, stage_id, time, dimensions):
     at the given frequency and stores them as jpg's in 
     'output_dir'"""
     ffmpeg_time = ffmpeg_format_time(time)
-    if sys.platform == 'darwin':
-        snap_ps = subprocess.call(("ffmpeg", 
-                                    "-ss", ffmpeg_time,
-                                    "-noaccurate_seek",
-                                    "-i", input,
-                                    "-filter:v",
-                                    "scale=" + str(dimensions['width']) 
-                                    + ':' + str(dimensions['height']), 
-                                    "-qscale:v", "2", # best jpeg quality possible
-                                    "-vframes", "1",
-                                    "".join((output, stage_id, '-',
-                                           standard_format_time(ffmpeg_time), '.jpg'))))
-    elif sys.platform == 'linux2':
-        snap_ps = subprocess.call(("ffmpeg", 
-                                "-ss", time,
-                                    "-i", input,
-                                    "-vf",
-                                    "scale=" + str(dimensions['width']) 
-                                    + ':' + str(dimensions['height']), 
-                                    "-qscale:v", "2", # best jpeg quality possible
-                                    "-vframes", "1",
-                                    "".join((output, stage_id, '-',
-                                           standard_format_time(ffmpeg_time), '.jpg'))))
-    else:
-        raise ValueError('Operating system not supported by this code')
+    snap_ps = subprocess.call(("ffmpeg", 
+                                "-ss", ffmpeg_time,
+                                "-noaccurate_seek",
+                                "-i", input,
+                                "-filter:v",
+                                "scale=" + str(dimensions['width']) 
+                                + ':' + str(dimensions['height']), 
+                                "-qscale:v", "2", # best jpeg quality possible
+                                "-vframes", "1",
+                                "".join((output, stage_id, '-',
+                                       standard_format_time(ffmpeg_time), '.jpg'))))
+
 
 def get_frame_dims(input):
     """return the frame dimensions of the video specified 
@@ -45,22 +32,19 @@ def get_frame_dims(input):
     stored video, not necessarily how it is supposed to be
     viewed (look up Storage Aspect Ratio vs Display Aspect
     Ratio for more details)."""
-    if sys.platform == 'darwin':
-        data_ps = subprocess.Popen(("ffprobe", "-v", "quiet",
-                                    "-print_format", "json",
-                                    "-show_streams",
-                                    input),
-                                    stdout=subprocess.PIPE, 
-                                    stderr=subprocess.STDOUT)
-        data_msg = subprocess.check_output(('grep', 'height\|width'), 
-                                        stdin=data_ps.stdout)
-        msg = clean_msg(data_msg)
-        dims = msg[:-1].split(',') # remove trailing comma before splitting
-        dims = [int(dim.split(':')[1]) for dim in dims]
-        dimensions = {'width': dims[0],
-                      'height': dims[1]}
-    else:
-        dimensions = {'height': 576, 'width': 720}
+    data_ps = subprocess.Popen(("ffprobe", "-v", "quiet",
+                                "-print_format", "json",
+                                "-show_streams",
+                                input),
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.STDOUT)
+    data_msg = subprocess.check_output(('grep', 'height\|width'), 
+                                    stdin=data_ps.stdout)
+    msg = clean_msg(data_msg)
+    dims = msg[:-1].split(',') # remove trailing comma before splitting
+    dims = [int(dim.split(':')[1]) for dim in dims]
+    dimensions = {'width': dims[0],
+                  'height': dims[1]}
     return dimensions
 
 def ffmpeg_format_time(time):
