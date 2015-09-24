@@ -1,20 +1,41 @@
 import string
+import sys
 import subprocess
+
+
+from time_utils import parse_hours, parse_mins
+from time_utils import parse_seconds, parse_milliseconds
 
 def snapshot(input, output, stage_id, time, dimensions):
     """takes snapshots of the video specified by input 
     at the given frequency and stores them as jpg's in 
     'output_dir'"""
-    snap_ps = subprocess.call(("ffmpeg", 
+    ffmpeg_time = ffmpeg_format_time(time)
+    if sys.platform == 'darwin':
+        snap_ps = subprocess.call(("ffmpeg", 
+                                    "-ss", ffmpeg_time,
+                                    "-noaccurate_seek",
+                                    "-i", input,
+                                    "-filter:v",
+                                    "scale=" + str(dimensions['width']) 
+                                    + ':' + str(dimensions['height']), 
+                                    "-qscale:v", "2", # best jpeg quality possible
+                                    "-vframes", "1",
+                                    "".join((output, stage_id, '-',
+                                           standard_format_time(ffmpeg_time), '.jpg'))))
+    elif sys.platform == 'linux2':
+        snap_ps = subprocess.call(("ffmpeg", 
                                 "-ss", time,
-                                "-noaccurate_seek",
-                                "-i", input,
-                                "-filter:v",
-                                "scale=" + str(dimensions['width']) 
-                                + ':' + str(dimensions['height']), 
-                                "-qscale:v", "2", # best jpeg quality possible
-                                "-vframes", "1",
-                                output + stage_id + '-' + time[0:2] + '_' + time[3:] + '.jpg'))
+                                    "-i", input,
+                                    "-vf",
+                                    "scale=" + str(dimensions['width']) 
+                                    + ':' + str(dimensions['height']), 
+                                    "-qscale:v", "2", # best jpeg quality possible
+                                    "-vframes", "1",
+                                    "".join((output, stage_id, '-',
+                                           standard_format_time(ffmpeg_time), '.jpg'))))
+    else:
+        raise ValueError('Operating system not supported by this code')
 
 def get_frame_dims(input):
     """return the frame dimensions of the video specified 
@@ -39,20 +60,25 @@ def get_frame_dims(input):
                   'height': dims[1]}
     return dimensions
 
+def ffmpeg_format_time(time):
+    """To work with ffmpeg, we must convert time 
+    formats from HH:MM:SS:MMM to HH:MM:SS.MMM
+    (the last period is only necesssary for this stage)."""
+    ffmpeg_time = time[:8] + '.' + time[9:]
+    return ffmpeg_time
+
+def standard_format_time(ffmpeg_time):
+    """Takes a time in ffmpeg format HH:MM:SS.MMM
+    and returns it to the standard format HH:MM:SS:MMM"""
+    time = ffmpeg_time[:8] + ':' + ffmpeg_time[9:]
+    return time
+
+
 def get_dar_dimensions(src_video, DAR = (16.0 / 9.0)):
     sar_dimensions = get_frame_dims(src_video)
     dar_dimensions = {'width': sar_dimensions['height'] * DAR, 
                   'height': sar_dimensions['height']}
     return dar_dimensions
-
-def digit_string(num):
-    """returns string form of num in the form NN, 
-    where numbers less than 10, for instance 6, 
-    becomes '06'"""
-    digit_string = str(num)
-    if num < 10:
-        digit_string = "0" + digit_string
-    return digit_string
 
 def clean_msg(msg):
     """cleans up messages by removing whitespace
