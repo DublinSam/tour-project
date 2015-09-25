@@ -1,19 +1,7 @@
 import cv2
-
+from file_utils import get_paths
 from image_utils import crop_frame 
 from image_utils import bottom_left_quadrant
-
-
-PATH = '/Users/samuelalbanie/aims_course/project_two/code/DVD/'
-TEMPLATE_PATH = PATH + 'templates/'
-FLAG_PATH = TEMPLATE_PATH + 'flag.jpg'
-BREAKAWAY_PATH = TEMPLATE_PATH + 'breakaway.jpg'
-TETE_PATH = TEMPLATE_PATH + 'tete.jpg'
-GROUP2_PATH = TEMPLATE_PATH + 'group2.jpg'
-GROUP3_PATH = TEMPLATE_PATH + 'group3.jpg'
-GROUP4_PATH = TEMPLATE_PATH + 'group4.jpg'
-ARRIERE_PATH = TEMPLATE_PATH + 'arriere.jpg'
-KM_PATH = TEMPLATE_PATH + 'km_sign.jpg'
 
 # Confidence threshold for template matching to be considered
 # valid
@@ -23,24 +11,24 @@ SIGN_WIDTH = 200
 SIGN_HEIGHT = 20
 
 def contains_template(img, template, confidence):
-    """returns true if the template matching achieves the 
+    """returns true if the template mat1ching achieves the 
     given level of confidence in locating the template.
     Otherwise returns false."""
     max_val,_ = best_match(img, template)
     return max_val > confidence
 
-def get_templates(km_path=KM_PATH, 
-                  
-                  flag_path=FLAG_PATH, 
-                  breakaway_path=BREAKAWAY_PATH,
-                  tete_path=TETE_PATH,
-                  group2_path=GROUP2_PATH,
-                  group3_path=GROUP3_PATH,
-                  group4_path=GROUP4_PATH,
-                  arriere_path=ARRIERE_PATH,
-                  ):
+def get_templates(paths):
     """returns the templates at the given paths. This is 
     done for caching purposes."""
+    flag_path = paths['templates'] + 'flag.jpg'
+    breakaway_path = paths['templates'] + 'breakaway.jpg'
+    tete_path = paths['templates'] + 'tete.jpg'
+    group2_path = paths['templates'] + 'group2.jpg'
+    group3_path = paths['templates'] + 'group3.jpg'
+    group4_path = paths['templates'] + 'group4.jpg'
+    arriere_path = paths['templates'] + 'arriere.jpg'
+    km_path = paths['templates'] + 'km_sign.jpg'
+
     flag_template = cv2.imread(flag_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     km_template = cv2.imread(km_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     breakaway_template = cv2.imread(breakaway_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
@@ -131,11 +119,10 @@ def contains_poursuivants_template(img, templates, confidence=CONFIDENCE):
     is_arriere = contains_template(cropped_img, templates['arriere'], confidence)
     return is_group2 or is_group3 or is_group4 or is_arriere
 
-def digit_region(img, region_width=52):
+def digit_region(img, templates, region_width=52):
     """returns the region of the image containg the digits
     representing the distance to go. The img must contain 
     the 'km to go' sign."""
-    templates = get_templates()
     sign_frame = crop_to_sign_using_template(img, templates['flag'])
     score, loc = best_match(sign_frame, templates['km'])
     region_width = 52

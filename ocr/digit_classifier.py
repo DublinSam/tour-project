@@ -10,19 +10,16 @@ from image_utils import border_rectangle, get_fig_dimensions
 from image_utils import apply_threshold_to_image
 from image_utils import white_divider
 from template_matching import get_templates, digit_region
-from train_classifier import DATA_PATH, MODEL_DIR
 
-TEST_FIGURES = DATA_PATH + '/test_figures/'
-
-def load_model():
-    samples = np.loadtxt(MODEL_DIR + 'tdf_digit_samples.data', np.float32)
-    responses = np.loadtxt(MODEL_DIR + 'tdf_digit_responses.data', np.float32)
+def load_model(paths):
+    samples = np.loadtxt(paths['digit_model'] + 'tdf_digit_samples.data', np.float32)
+    responses = np.loadtxt(paths['digit_model'] + 'tdf_digit_responses.data', np.float32)
     responses = responses.reshape((responses.size,1))
     model = cv2.KNearest()
     model.train(samples, responses)
     return model
 
-def create_test_fig(km_img, top, rectangle, divider):
+def create_test_fig(km_img, top, rectangle, divider, paths):
     fig_width, fig_height = get_fig_dimensions(SIGN_WIDTH, SIGN_HEIGHT)
     fig, ax = plt.subplots(1,1)
     fig.set_size_inches(fig_width, fig_height)
@@ -32,27 +29,26 @@ def create_test_fig(km_img, top, rectangle, divider):
     ax.add_patch(patches.Rectangle(**divider))
     ax.add_patch(patches.Rectangle(**rectangle))
     ax.set_axis_off()
-    plt.savefig(TEST_FIGURES + 'current_fig.jpg', bbox_inches='tight', pad_inches=0)
+    plt.savefig(paths['test_figures'] + 'current_fig.jpg', bbox_inches='tight', pad_inches=0)
 
-def preprocess(img_path):
+def preprocess(img_path, paths):
     """Crops the original image so that it only contains the 'km to go'
     sign and adds a grey border to help with digit classification. This 
     is saved to file rather than passed around """
+    templates = get_templates(paths)
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     if img is None:
         raise ValueError('Image not found')
-    # km_img = crop_frame(img)
-    templates = get_templates()
-    km_img = digit_region(img, templates['flag'])
+    km_img = digit_region(img, templates)
     top = top_border(km_img)
     divider = white_divider(km_img)
     rectangle = border_rectangle(km_img)
-    create_test_fig(km_img, top, rectangle, divider)
+    create_test_fig(km_img, top, rectangle, divider, paths)
 
-def classify(img_path, model):
+def classify(img_path, paths, model):
     """Apply kNN with k = 1 to categorize each digit in the image."""
-    preprocess(img_path)
-    binary_img = apply_threshold_to_image(TEST_FIGURES + 'current_fig.jpg')
+    preprocess(img_path, paths)
+    binary_img = apply_threshold_to_image(paths['test_figures'] + 'current_fig.jpg')
     contours = find_contours(binary_img)
     final_contours, final_results = [],[]
     for contour in contours:
@@ -78,8 +74,8 @@ def arrange_digits_in_order(digits, contours):
     sorted_positions = sorted(digit_positions, key=lambda x: x[0])
     return [pair[1] for pair in sorted_positions]
 
-def find_number(img_path, model):
-    final_results, final_contours = classify(img_path, model)
+def find_number(img_path, paths, model):
+    final_results, final_contours = classify(img_path, paths, model)
     ordered_digits = arrange_digits_in_order(final_results, final_contours)
     total = 0.0    
     for i, digit in enumerate(reversed(ordered_digits)):

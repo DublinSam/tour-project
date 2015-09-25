@@ -1,5 +1,29 @@
 import os
 
+def get_paths(root_path, stage_id):
+    """returns all required paths and ensures that 
+    the path to each defirectory is valid."""
+    paths = {}
+    stage_str = str(stage_id)
+    paths['tete'] = root_path + 'tete_frames/' + stage_str + '/'
+    paths['log'] = root_path + 'camera_states/' + stage_str + '.pickle'
+    paths['precis'] = root_path + 'precis_frames/' + stage_str + '/'
+    paths['src_video'] = root_path + 'raw/Stage' + stage_str +'.m4v'
+    paths['tmp_clusters'] = root_path + 'tmp_clusters/' + stage_str + '/'
+    paths['templates'] = root_path + 'templates/'
+    paths['fused'] = root_path + 'ocr/fused/'
+    paths['digit_model'] = root_path + 'ocr/model/'
+    paths['test_figures'] = root_path + 'ocr/test_figures/'
+    paths['digit_training_frames'] = root_path + 'ocr/digit_training_frames/'
+    
+    directories = ['tete', 'precis', 'tmp_clusters', 'templates', 'fused', 
+                   'digit_model', 'test_figures', 'digit_training_frames']
+    for key in directories:
+        if not os.path.exists(paths[key]):
+            os.makedirs(paths[key]) 
+    return paths
+
+
 def get_jpgs_in_dir(image_dir):
     """returns list of the .jpg files in the given
     directory, together with the root path."""

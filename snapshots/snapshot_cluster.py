@@ -30,4 +30,4 @@ def take_cluster_snapshots_at_targets(targets, paths, stage_id, DAR = (16.0 / 9.
     and saves it to the target_dir."""
     dar_dims = get_dar_dimensions(paths['src_video'], DAR=DAR)
     snapshot_cluster(targets=targets, paths=paths, stage_id=stage_id, dar_dims=dar_dims)
-    extract_sharpest_frames(paths['tmp_clusters'], paths['target'],stage_id)
+    extract_sharpest_frames(paths['tmp_clusters'], paths['tete'], stage_id)

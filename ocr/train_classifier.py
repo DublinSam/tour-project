@@ -18,19 +18,6 @@ from template_matching import get_templates
 from template_matching import digit_region
 from template_matching import SIGN_WIDTH, SIGN_HEIGHT
 
-
-# Path to data (sample frames from sports footage)
-DATA_PATH = '/Users/samuelalbanie/aims_course/project_two/code/tour_data/project_tools/ocr/data'
-
-# Location of sample images used to train digit classifier
-SAMPLE_IMAGES = DATA_PATH + '/training_images/'
-
-# Location where the fused training image will be stored
-TARGET_DIR = DATA_PATH + '/fused_image/'
-
-# Location where the model will be stored
-MODEL_DIR = DATA_PATH + '/model/'
-
 def count_digits(file_list):
     """counts the instances of digits occuring 
     in the file names present in file_list"""
@@ -53,10 +40,10 @@ def plot_histogram_of_digits(file_list):
     plt.xticks(indexes +  0.5, digits)
     plt.show()
 
-def show_training_digits_distribution(src_dir):
+def show_training_digits_distribution(paths):
     """displays a histogram of the counts of 
     digits from the training data in src_dir"""
-    path, jpgs = get_jpgs_in_dir(src_dir)
+    path, jpgs = get_jpgs_in_dir(paths['digit_training_frames'])
     file_list = "".join([img_name[:-4] for img_name in jpgs])
     plot_histogram_of_digits(file_list)
 
@@ -71,13 +58,13 @@ def get_subplots(num_rows, num_cols):
     plt.axis('off')
     return (fig, axes)
 
-def construct_training_image(src_dir, target_dir, num_cols=3):
+def construct_training_image(paths, num_cols=3):
     """constructs an image containing at least one example of 
     each digit based on the files in src_dir and saves it as 
     'digit_examples.jpg' in target_dir. Saving the image isn't 
     necessary, but it provides a useful sanity check."""
-    root, frame_paths = get_jpgs_in_dir(src_dir)
-    templates = get_templates()
+    root, frame_paths = get_jpgs_in_dir(paths['digit_training_frames'])
+    templates = get_templates(paths)
     num_rows = int(math.ceil(len(frame_paths) / num_cols))
     fig, axes = get_subplots(num_rows, num_cols)
     
@@ -93,16 +80,16 @@ def construct_training_image(src_dir, target_dir, num_cols=3):
         ax.add_patch(patches.Rectangle(**top))
         ax.set_axis_off()
     fig.subplots_adjust(hspace=0.1)
-    plt.savefig(target_dir + 'digit_examples.jpg', bbox_inches='tight', pad_inches=0)
+    plt.savefig(paths['fused'] + 'digit_examples.jpg', bbox_inches='tight', pad_inches=0)
 
-def manually_label_digits(src_dir):
+def manually_label_digits(paths):
     """returns a tuple containing:
     'samples':  a list of shrunk digit images 
     'responses': a list of the label values (each a digit)"""
     samples = np.empty((0,400))
     responses = [] # store the labels
     keys = [i for i in range(48,58)]
-    img_path = src_dir + 'digit_examples.jpg'
+    img_path = paths['fused'] + 'digit_examples.jpg'
     binary_img = apply_threshold_to_image(img_path)
     binary_img_copy = np.copy(binary_img)
     contours = find_contours(binary_img)
@@ -124,8 +111,8 @@ def manually_label_digits(src_dir):
                     samples = np.append(samples,sample,0)
     return (samples, responses)
 
-def save_model_labels(src_dir):
-    samples, responses = manually_label_digits(src_dir)
+def save_model_labels(paths):
+    samples, responses = manually_label_digits(paths)
     cv2.destroyAllWindows()
     responses = np.array(responses,np.float32)
     responses = responses.reshape((responses.size,1))

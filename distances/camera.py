@@ -5,7 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 from tqdm import *
-
+from file_utils import get_paths
 from digit_classifier import load_model
 from digit_classifier import find_number
 from template_matching import get_templates 
@@ -31,21 +31,21 @@ class Camera:
 
 class CameraFocus:
 
-    def __init__(self, src_dir, stage_id):
+    def __init__(self, root_path, stage_id):
         """takes as input a directory containing frames i.e. 
         snapshots taken at a one second interval."""
-        frames = get_img_paths_in_dir(src_dir + str(stage_id))
-        self.frames = frames
+        self.paths = get_paths(root_path, stage_id)
+        self.frames = get_img_paths_in_dir(self.paths['precis'])
         self.stage_id = stage_id
         self.current_camera_state = Camera.Rest
         self.camera_states_log = []
-        self.digit_model = load_model()
+        self.digit_model = load_model(self.paths)
         self.current_distance = None
-        self.templates = get_templates()
+        self.templates = get_templates(self.paths)
 
-    def get_camera_states(self, log_dir):
+    def get_camera_states(self):
         # First check if camera states log already exists
-        log_file = log_dir + str(self.stage_id) + '.pickle'
+        log_file = self.paths['log']
         if os.path.isfile(log_file):
             with open(log_file, 'rb') as f:
                 self.camera_states_log = pickle.load(f)
@@ -56,6 +56,7 @@ class CameraFocus:
                 self.update_camera_state(img, img_name)
                 self.camera_states_log.append(self.current_camera_state)
         return self.camera_states_log
+
 
     def update_camera_state(self, img, img_name):
         if not self.is_distance_labeled(img):
@@ -96,11 +97,11 @@ class CameraFocus:
         did_skip = False
         if self.current_distance:
             previous_distance = self.current_distance
-            self.current_distance = find_number(img_name, self.digit_model)
+            self.current_distance = find_number(img_name, self.paths, self.digit_model)
             if previous_distance - self.current_distance > 0.15:
                 did_skip = True
         else:
-            self.current_distance = find_number(img_name, self.digit_model)
+            self.current_distance = find_number(img_name, self.paths, self.digit_model)
         return did_skip
 
     def is_distance_labeled(self, img):
@@ -117,8 +118,8 @@ class CameraFocus:
         idx = range(len(self.camera_states_log))
         plt.plot(idx, self.camera_states_log, **kwargs)
 
-    def save_camera_states(self, dest_file):
+    def save_camera_states(self):
         """pickle the camera states so that they can be 
         retrieved later in processing."""
-        with open(dest_file, 'wb') as f:
+        with open(self.paths['log'], 'wb') as f:
             pickle.dump(self.camera_states_log, f)

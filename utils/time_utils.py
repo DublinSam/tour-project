@@ -30,7 +30,7 @@ def get_video_duration(path):
 
 def formatted_times_in_video(src_video):
     """returns a list of each second of video footage
-    formatted in the form 'HH:MM:SS'"""
+    formatted in the form 'HH:MM:SS:MMM'"""
     duration = get_video_duration(src_video)
     seconds = time_to_seconds(duration)
     times = [seconds_to_time(second) for second in range(seconds)]
@@ -165,18 +165,6 @@ def ensure_three_digits(num):
     else:
         three_digit_num = '00' + str(num)
     return three_digit_num
-
-def half_second_formatted_times_in_video(src_video):
-    """returns a list of each second of video footage
-    formatted in the form 'HH:MM:SS:S where the last S 
-    stands for split seconds, and take the value 0 or 5."""
-    duration = get_video_duration(src_video)
-    seconds = time_to_seconds(duration)
-    times = [seconds_to_time(second) for second in range(seconds)]
-    second_intervals = [time + ':000' for time in times]
-    half_second_intervals = [time + ':500' for time in times]
-    all_times = second_intervals + half_second_intervals
-    return sorted(all_times)
 
 def add_milliseconds(time, milliseconds):
     """returns a formatted string in the form 
