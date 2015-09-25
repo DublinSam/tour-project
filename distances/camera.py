@@ -97,11 +97,11 @@ class CameraFocus:
         did_skip = False
         if self.current_distance:
             previous_distance = self.current_distance
-            self.current_distance = find_number(img_name, self.paths, self.digit_model)
+            self.current_distance = find_number(img_name, self.paths, self.digit_model, self.templates)
             if previous_distance - self.current_distance > 0.15:
                 did_skip = True
         else:
-            self.current_distance = find_number(img_name, self.paths, self.digit_model)
+            self.current_distance = find_number(img_name, self.paths, self.digit_model, self.templates)
         return did_skip
 
     def is_distance_labeled(self, img):
