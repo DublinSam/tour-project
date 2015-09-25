@@ -35,7 +35,7 @@ class CameraFocus:
         """takes as input a directory containing frames i.e. 
         snapshots taken at a one second interval."""
         self.paths = get_paths(root_path, stage_id)
-        self.frames = get_img_paths_in_dir(self.paths['precis'])
+        self.frames = sorted(get_img_paths_in_dir(self.paths['precis']))
         self.stage_id = stage_id
         self.current_camera_state = Camera.Rest
         self.camera_states_log = []
