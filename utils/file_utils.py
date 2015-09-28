@@ -11,10 +11,10 @@ def get_paths(root_path, stage_id):
     paths['src_video'] = root_path + 'raw/Stage' + stage_str +'.m4v'
     paths['tmp_clusters'] = root_path + 'tmp_clusters/' + stage_str + '/'
     paths['templates'] = root_path + 'templates/'
-    paths['fused'] = root_path + 'ocr/data/fused/'
-    paths['digit_model'] = root_path + 'ocr/data/model/'
-    paths['test_figures'] = root_path + 'ocr/data/test_figures/'
-    paths['digit_training_frames'] = root_path + 'ocr/data/digit_training_frames/'
+    paths['fused'] = root_path + 'ocr/fused/'
+    paths['digit_model'] = root_path + 'ocr/model/'
+    paths['test_figures'] = root_path + 'ocr/test_figures/'
+    paths['digit_training_frames'] = root_path + 'ocr/digit_training_frames/'
     paths['strava'] = root_path + 'gradient_data/raw/'
     
     directories = ['tete', 'precis', 'tmp_clusters', 'templates', 'fused', 
