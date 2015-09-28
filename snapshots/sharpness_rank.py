@@ -4,6 +4,7 @@ import shutil
 import numpy as np
 from tqdm import *
 from os import path
+from file_utils import get_img_paths_in_dir
 from scipy.ndimage.filters import gaussian_laplace
 
 
@@ -12,21 +13,13 @@ def extract_sharpest_frames(src_dir, target_dir, stage_id, sigma=3):
     for dirname in tqdm(dirnames):
         extract_from_dir(src_dir, dirname, target_dir, stage_id, sigma)
 
-
 def extract_from_dir(root, dirname, target_dir, stage_id, sigma):
-    img_names = get_images_in_dir(root, dirname)
+    path = root + dirname
+    img_names = get_img_paths_in_dir(path)
     sharpest_img = find_sharpest(img_names, sigma)
     target_name = target_dir + stage_id + '-' + \
         dirname[:2] + '_' + dirname[3:] + '.jpg'
     shutil.copy(sharpest_img, target_name)
-
-
-def get_images_in_dir(root, dirname):
-    all_files = next(os.walk(root + dirname + '/'))[2]
-    imgs = [root + dirname + '/' +
-        fname for fname in all_files if fname.endswith('.jpg')]
-    return imgs
-
 
 def find_sharpest(img_names, sigma):
     """calculates a 'sharpness' value for the center of each image

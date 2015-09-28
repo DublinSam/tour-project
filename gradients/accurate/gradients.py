@@ -1,23 +1,35 @@
 from __future__ import division
 
 import numpy as np
+from file_utils import get_paths
 from xml.dom import minidom
-from scipy_recipes import smooth
 
-WINDOW_LENGTH = 199
+MEASUREMENT_OFFSET = 20
+ELEVATION_WINDOW_LENGTH = 25
+GRADIENT_WINDOW_LENGTH = 3
 
 
-def build_path(stage_id):
+def smooth(x, N):
+    """takes an integer N (MUST BE ODD) as the order
+    of a convolution filter to smooth x"""
+    buffer_avg = np.zeros(int(N / 2))
+    # extend x to handle convolution "off the ends"
+    x_complete = np.hstack((buffer_avg, x, buffer_avg))
+    smoothed_x = np.convolve(x_complete, np.ones((N,))/N, mode='valid')
+    return smoothed_x
+
+def build_path(root_path, stage_id):
     """constructs the path to the .tcx file for the
     given stage."""
-    PATH = """/Users/samuelalbanie/aims_course/project_two/code/tour_data/gradient_data/strava_profiles/raw/"""
-    return PATH + "Stage" + str(stage_id) + ".tcx"
+    paths = get_paths(root_path, stage_id)
+    strava_dir = paths['strava']
+    return strava_dir + "Stage" + str(stage_id) + ".tcx"
 
-def get_xml_values(stage_id, target):
+def get_xml_values(root_path, stage_id, target):
     """returns the values contained in the dom nodes 
     representing the xml data for the given stage_id.
     `target` is used to select the data of interest."""
-    path = build_path(stage_id)
+    path = build_path(root_path, stage_id)
     dom = minidom.parse(path)
     data_keys = {'elevations': 5, 'distances': 7}
     data_id = data_keys[target]
@@ -26,19 +38,19 @@ def get_xml_values(stage_id, target):
         values.append(node.childNodes[data_id].firstChild.nodeValue)
     return values
 
-def get_elevations(stage_id):
+def get_elevations(root_path, stage_id):
     """returns a list of smoothed elevations for the given stage."""
-    elevations = get_xml_values(stage_id, "elevations")
+    elevations = get_xml_values(root_path, stage_id, "elevations")
     elevations = [float(elevation) for elevation in elevations]
-    smooth_elevations = smooth(np.array(elevations), WINDOW_LENGTH, 'flat')
+    smooth_elevations = smooth(np.array(elevations), N=ELEVATION_WINDOW_LENGTH)
     return smooth_elevations
 
-def get_precise_distances(stage_id):
+def get_precise_distances(root_path, stage_id):
     """returns a list of 'precise' distances, measured 
     in metres.  This is necessary for the purposes of 
     producing accurate gradients. After this has been done, 
     the distances are converted to `km` for general use."""
-    precise_distances = get_xml_values(stage_id, "distances")
+    precise_distances = get_xml_values(root_path, stage_id, "distances")
     precise_distances = [round(float(distance), 1) for distance in precise_distances]
     return precise_distances
 
@@ -56,15 +68,17 @@ def calculate_gradients(elevations, distances):
     gradients.extend(8 * [0])
     # convert gradients to percentages
     gradients = [round(gradient * 100,1) for gradient in gradients] 
-    smooth_gradients = smooth(np.array(gradients), WINDOW_LENGTH, 'flat')[:-1]
+    smooth_gradients = smooth(np.array(gradients), N = GRADIENT_WINDOW_LENGTH)
     return smooth_gradients
 
 def find_gradient_at_distance(target_distance, distances, gradients):
     """finds the gradient at the marker located closest to 
     the given target_distance.""" 
-    closest_marker = min(distances, key=lambda x:abs(x - target_distance))
-    target_idx = distances.index(closest_marker)
-    return gradients[target_idx]
+    closest_marker = min(distances, key=lambda x:abs(x - target_distance)) 
+    closest_idx = distances.index(closest_marker)
+    if closest_idx > MEASUREMENT_OFFSET:
+        closest_idx = closest_idx - MEASUREMENT_OFFSET
+    return gradients[closest_idx]
 
 def find_gradient(stage_id, distance_to_go):
     """calculates the gradient of the given stage with 
@@ -77,4 +91,4 @@ def find_gradient(stage_id, distance_to_go):
     distances = [round(distance / 1000, 2) for distance in distances]
     target_distance = max(distances) - distance_to_go
     target_gradient = find_gradient_at_distance(target_distance, distances, gradients)
-    return target_gradient
+    return round(target_gradient,1)
