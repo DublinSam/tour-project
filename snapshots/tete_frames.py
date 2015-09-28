@@ -15,7 +15,7 @@ def get_tete_images(paths):
     with open(paths['log'], 'rb') as f:
         camera_states_log = pickle.load(f)
     img_names = get_img_paths_in_dir(paths['precis'])
-    labeled_imgs = zip(camera_states_log, img_names)
+    labeled_imgs = zip(camera_states_log, sorted(img_names))
     tete_imgs = [img for (state, img) in labeled_imgs if state == Camera.Tete]
     return tete_imgs   
 

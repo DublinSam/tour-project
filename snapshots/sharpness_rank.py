@@ -14,7 +14,7 @@ def extract_sharpest_frames(src_dir, target_dir, stage_id, sigma=3):
         extract_from_dir(src_dir, dirname, target_dir, stage_id, sigma)
 
 def extract_from_dir(root, dirname, target_dir, stage_id, sigma):
-    path = root + dirname
+    path = root + dirname + '/'
     img_names = get_img_paths_in_dir(path)
     sharpest_img = find_sharpest(img_names, sigma)
     target_name = target_dir + stage_id + '-' + \
