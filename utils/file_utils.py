@@ -24,8 +24,6 @@ def get_paths(root_path, stage_id):
             os.makedirs(paths[key]) 
     return paths
 
-
-
 def get_jpgs_in_dir(image_dir):
     """returns list of the .jpg files in the given
     directory, together with the root path."""
@@ -42,7 +40,7 @@ def get_img_paths_in_dir(image_dir):
     """returns a list of full paths to .jpg files in 
     the given directory."""
     root, frames = get_jpgs_in_dir(image_dir)
-    img_paths = [root + '/' +  frame for frame in frames]
+    img_paths = [root + frame for frame in frames]
     return img_paths
 
 def is_img_name(fname):

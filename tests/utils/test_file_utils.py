@@ -17,7 +17,7 @@ class TestFileUtils(unittest.TestCase):
         """Check that get_jpgs_in_dir functions correctly on
         a directoyr of training images.  Since we don't care 
         about ordering, we compare sets of files rather than lists."""
-        image_dir = ROOT_PATH + 'ocr/training_images'
+        image_dir = ROOT_PATH + 'ocr/training_images/'
         expected_frames = [
             'contains_136.jpg',
             'contains_137.jpg',
@@ -33,7 +33,7 @@ class TestFileUtils(unittest.TestCase):
         """Check that get_jpgs_in_dir functions correctly on
         a directoyr of training images.  Since we don't care 
         about ordering, we compare sets of files rather than lists."""
-        image_dir = ROOT_PATH + 'ocr/training_images'
+        image_dir = ROOT_PATH + 'ocr/training_images/'
         expected_paths = [
             ROOT_PATH + 'ocr/training_images/contains_136.jpg',
             ROOT_PATH + 'ocr/training_images/contains_137.jpg',
