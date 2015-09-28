@@ -42,15 +42,13 @@ def get_img_paths_in_dir(image_dir):
     """returns a list of full paths to .jpg files in 
     the given directory."""
     root, frames = get_jpgs_in_dir(image_dir)
-    img_paths = [root + frame for frame in frames]
+    img_paths = [root + '/' +  frame for frame in frames]
     return img_paths
 
 def is_img_name(fname):
     """returns true if the file is a jpg and ignores
     hidden files sometimes created on ubuntu"""
     return fname.endswith('.jpg') and not fname[::-1].endswith('_.')
-
-
 
 def get_target_dir(path, selected_time):
     target_dir = path + selected_time + '/'
