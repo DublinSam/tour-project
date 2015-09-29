@@ -1,9 +1,25 @@
 import os
+import dlib
 import matplotlib
+from tqdm import *
 from skimage import io
+from file_utils import get_paths
+from file_utils import get_jpgs_in_dir
 from image_utils import crop_frame
 from gradients import find_gradient
+from template_matching import get_templates
+from digit_classifier import load_model
 from digit_classifier import find_number
+
+def load_cache(paths):
+    """load items that will be used repeatedly into memory
+    to avoid unnecessary IO."""
+    cache = {}
+    cache['paths'] = paths
+    cache['model'] = load_model(paths)
+    cache['detector'] = dlib.fhog_object_detector(paths['dlib_detector']) 
+    cache['templates'] = get_templates(paths)
+    return cache
 
 def get_target_dir(target_dir):
     """ensures that target_dir exists"""
@@ -23,7 +39,7 @@ def get_bounding_boxes(dets):
         bounding_boxes.append(bounding_box)
     return bounding_boxes
 
-def save_labeled_face(img_name, img, i, box, gradient, dest_dir):
+def save_labeled_face(img_name, img, i, box, gradient, cache):
     """Saves face `i` in `img` with a new filename that 
     includes the gradient at which the snapshot was taken."""
     face_img = crop_frame(img, box)
@@ -31,18 +47,19 @@ def save_labeled_face(img_name, img, i, box, gradient, dest_dir):
     head, tail = os.path.split(img_name)
     face_name = tail[:-4] + ':' + str(i) + ':' + str(gradient) + '.jpg'
     if face_dims[0] > 10 and face_dims[1] > 10:
+        dest_dir = get_target_dir(cache['paths']['faces'])
         matplotlib.image.imsave(dest_dir + face_name, face_img)
 
-def extract_confident_detections(img, img_name, stage_id, dets, scores, model, dest_dir):
+def extract_confident_detections(img, img_name, dets, scores, cache):
     """For the given image, the gradient is calculated and
     passed to 'save_labeled_face()' for detections 
     that meet the required score threshold."""
-    distance_to_go = find_number(img_name, model)
-    gradient = find_gradient(stage_id, distance_to_go)
+    distance_to_go = find_number(img_name, cache['paths'], cache['model'], cache['templates'])
+    gradient = find_gradient(cache['paths'], distance_to_go)
     bounding_boxes = get_bounding_boxes(dets)
     for i, box in enumerate(bounding_boxes):
             if scores[i] > 0.5:
-                save_labeled_face(img_name, img, i, box, gradient, dest_dir)
+                save_labeled_face(img_name, img, i, box, gradient, cache)
 
 def faces_present(dets, scores, threshold):
     """returns true if the face detector found at 
@@ -50,9 +67,16 @@ def faces_present(dets, scores, threshold):
     more than 'threshold'."""
     return dets and max(scores) > threshold
 
-def extract_faces_from_image(img_name, dest_dir, stage_id, model, detector, threshold=0.5):
+def extract_faces_from_image(img_name, cache, threshold=0.5):
     img = io.imread(img_name)
-    dest_dir = get_target_dir(dest_dir)
-    dets, scores, idx = detector.run(img, 1)
+    dets, scores, idx = cache['detector'].run(img, 1)
     if faces_present(dets, scores, threshold):
-        extract_confident_detections(img, img_name, stage_id, dets, scores, model, dest_dir)
+        extract_confident_detections(img, img_name, dets, scores, cache)
+
+def extract_face_frames(root_path, stage_id):
+    paths = get_paths(root_path, stage_id)
+    cache = load_cache(paths)
+    root, jpgs = get_jpgs_in_dir(paths['tete'])
+    img_names = [root + jpg for jpg in jpgs]
+    for img_name in tqdm(img_names):
+        extract_faces_from_image(img_name, cache)

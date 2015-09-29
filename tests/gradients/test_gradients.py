@@ -6,7 +6,6 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 import unittest
 
-from gradients import build_path
 from gradients import get_xml_values
 from gradients import get_elevations
 from gradients import get_precise_distances
@@ -18,29 +17,21 @@ from test_settings import ROOT_PATH
 
 class TestGradients(unittest.TestCase):
 
-    def test_build_path(self):
-        """check that build_path correctly concatenates the stage id
-        with the required path."""
-        stage_id = 5
-        paths = get_paths(ROOT_PATH, stage_id)
-        strava_dir = paths['strava']
-        path = build_path(ROOT_PATH, stage_id)
-        expected_path = strava_dir + "Stage5.tcx"
-        self.assertEqual(expected_path, path)
-
     def test_get_xml_values(self):
         """check that get_xml_values is returning a list of 
         values of the correct length."""
         stage_id = 5
         target = "distances"
         expected_num_distances = 2876
-        distances = get_xml_values(ROOT_PATH, stage_id, target)
+        paths = get_paths(ROOT_PATH, stage_id)
+        distances = get_xml_values(paths, target)
         self.assertEqual(expected_num_distances, len(distances))
 
     def test_get_elevations(self):
         """check that get_elevations returns a list of floats"""
         stage_id = 3
-        elevations = get_elevations(ROOT_PATH, stage_id)
+        paths = get_paths(ROOT_PATH, stage_id)
+        elevations = get_elevations(paths)
         self.assertTrue(isinstance(elevations[7], float))
 
     def test_get_precise_distances(self):
@@ -49,7 +40,8 @@ class TestGradients(unittest.TestCase):
         longer than the official stage distance becausee it includes
         the neutral zone at the start."""
         stage_id = 14
-        precise_distances = get_precise_distances(ROOT_PATH, stage_id)
+        paths = get_paths(ROOT_PATH, stage_id)
+        precise_distances = get_precise_distances(paths)
         expected_distance = 185082.7 
         full_distance = precise_distances[-1]
         self.assertEqual(expected_distance, full_distance)
@@ -96,7 +88,8 @@ class TestGradients(unittest.TestCase):
                       {'stage_id': 21, 'length': 147.87},
                       ]
         for data in stage_data:
-            distances = get_precise_distances(ROOT_PATH, data['stage_id'])
+            paths = get_paths(ROOT_PATH, data['stage_id'])
+            distances = get_precise_distances(paths)
             length = round(max(distances) / 1000, 2)
             expected_length = data['length']
             self.assertEqual(expected_length, length)

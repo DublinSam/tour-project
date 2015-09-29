@@ -10,14 +10,16 @@ def get_paths(root_path, stage_id):
     paths['precis'] = root_path + 'precis_frames/' + stage_str + '/'
     paths['src_video'] = root_path + 'raw/Stage' + stage_str +'.m4v'
     paths['tmp_clusters'] = root_path + 'tmp_clusters/' + stage_str + '/'
+    paths['faces'] = root_path + 'faces_with_gradients/' + stage_str + '/'
     paths['templates'] = root_path + 'templates/'
     paths['fused'] = root_path + 'ocr/fused/'
     paths['digit_model'] = root_path + 'ocr/model/'
     paths['test_figures'] = root_path + 'ocr/test_figures/'
+    paths['dlib_detector'] = root_path + 'dlib/cyclist_detector.svm'
     paths['digit_training_frames'] = root_path + 'ocr/digit_training_frames/'
-    paths['strava'] = root_path + 'gradient_data/raw/'
+    paths['strava'] = root_path + 'gradient_data/raw/Stage' + str(stage_id) + ".tcx"
     
-    directories = ['tete', 'precis', 'tmp_clusters', 'templates', 'fused', 
+    directories = ['tete', 'precis', 'faces', 'tmp_clusters', 'templates', 'fused', 
                    'digit_model', 'test_figures', 'digit_training_frames']
     for key in directories:
         if not os.path.exists(paths[key]):

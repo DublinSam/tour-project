@@ -18,19 +18,11 @@ def smooth(x, N):
     smoothed_x = np.convolve(x_complete, np.ones((N,))/N, mode='valid')
     return smoothed_x
 
-def build_path(root_path, stage_id):
-    """constructs the path to the .tcx file for the
-    given stage."""
-    paths = get_paths(root_path, stage_id)
-    strava_dir = paths['strava']
-    return strava_dir + "Stage" + str(stage_id) + ".tcx"
-
-def get_xml_values(root_path, stage_id, target):
+def get_xml_values(paths, target):
     """returns the values contained in the dom nodes 
     representing the xml data for the given stage_id.
     `target` is used to select the data of interest."""
-    path = build_path(root_path, stage_id)
-    dom = minidom.parse(path)
+    dom = minidom.parse(paths['strava'])
     data_keys = {'elevations': 5, 'distances': 7}
     data_id = data_keys[target]
     values = []
@@ -38,19 +30,19 @@ def get_xml_values(root_path, stage_id, target):
         values.append(node.childNodes[data_id].firstChild.nodeValue)
     return values
 
-def get_elevations(root_path, stage_id):
+def get_elevations(paths):
     """returns a list of smoothed elevations for the given stage."""
-    elevations = get_xml_values(root_path, stage_id, "elevations")
+    elevations = get_xml_values(paths, "elevations")
     elevations = [float(elevation) for elevation in elevations]
     smooth_elevations = smooth(np.array(elevations), N=ELEVATION_WINDOW_LENGTH)
     return smooth_elevations
 
-def get_precise_distances(root_path, stage_id):
+def get_precise_distances(paths):
     """returns a list of 'precise' distances, measured 
     in metres.  This is necessary for the purposes of 
     producing accurate gradients. After this has been done, 
     the distances are converted to `km` for general use."""
-    precise_distances = get_xml_values(root_path, stage_id, "distances")
+    precise_distances = get_xml_values(paths, "distances")
     precise_distances = [round(float(distance), 1) for distance in precise_distances]
     return precise_distances
 
@@ -80,11 +72,11 @@ def find_gradient_at_distance(target_distance, distances, gradients):
         closest_idx = closest_idx - MEASUREMENT_OFFSET
     return gradients[closest_idx]
 
-def find_gradient(stage_id, distance_to_go):
+def find_gradient(paths, distance_to_go):
     """calculates the gradient of the given stage with 
     `distance_to_go` km remaining."""
-    elevations = get_elevations(stage_id)    
-    distances = get_precise_distances(stage_id)
+    elevations = get_elevations(paths)    
+    distances = get_precise_distances(paths)
     gradients = calculate_gradients(elevations, distances)
 
     # convert from metres to km
