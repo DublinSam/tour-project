@@ -1,6 +1,7 @@
 import cv2
 from file_utils import get_paths
 from image_utils import crop_frame 
+from image_utils import bottom_half
 from image_utils import bottom_left_quadrant
 
 # Confidence threshold for template matching to be considered
@@ -97,18 +98,21 @@ def is_distance_measured_in_km(img, templates, confidence=CONFIDENCE):
     in_km = contains_template(cropped_img, templates['km'], confidence)
     return in_km
 
-def contains_breakaway_template(img, templates, confidence=CONFIDENCE):
-    extended_sign_width = SIGN_WIDTH + 20
-    sign_location = find_sign_location(img, templates['flag'], width=extended_sign_width)
-    cropped_img = crop_frame(img, sign_location)
-    has_breakaway = contains_template(cropped_img, templates['breakaway'], confidence)
-    return has_breakaway
-
 def contains_tete_template(img, templates, confidence=CONFIDENCE):
     quadrant = bottom_left_quadrant(img)
     cropped_img = crop_frame(img, quadrant)
     is_tete = contains_template(cropped_img, templates['tete'], confidence)
     return is_tete
+
+def contains_group_positions(img, templates, confidence=CONFIDENCE):
+    """returns true if the screen is annotated with a complete ranking of the 
+    time gaps between the first three groups."""
+    half = bottom_half(img)
+    cropped_img = crop_frame(img, half)
+    is_tete = contains_template(cropped_img, templates['tete'], confidence)
+    is_group2 = contains_template(cropped_img, templates['group2'], confidence)
+    is_group3 = contains_template(cropped_img, templates['group3'], confidence)
+    return is_tete and is_group2 and is_group3
 
 def contains_poursuivants_template(img, templates, confidence=CONFIDENCE):
     quadrant = bottom_left_quadrant(img)

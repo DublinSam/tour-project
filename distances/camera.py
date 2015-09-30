@@ -11,7 +11,7 @@ from digit_classifier import find_number
 from template_matching import get_templates 
 from template_matching import contains_tete_template
 from template_matching import contains_chequered_flag
-from template_matching import contains_breakaway_template
+from template_matching import contains_group_positions
 from template_matching import contains_poursuivants_template
 from template_matching import is_distance_measured_in_km
 
@@ -70,8 +70,13 @@ class CameraFocus:
         if self.did_footage_skip(img_name):
             self.current_camera_state = Camera.Poursuivants
 
-        # First check for an annotation that the camera is 
-        # focused on the head of the stage.
+        # First check for an annotation describing the spacing
+        # between all groups in the race. This often accompanies
+        # a switch of camera focus, but doesn't indicate which so
+        # we conservatively reset to Poursuivants
+        elif contains_group_positions(img, self.templates):
+            self.current_camera_state = Camera.Poursuivants
+        
         elif contains_tete_template(img, self.templates):
             self.current_camera_state = Camera.Tete
 

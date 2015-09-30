@@ -94,6 +94,19 @@ def white_divider(img, thickness=10):
     }
     return rectangle
 
+def bottom_half(img):
+    """returns the bounding vertices of a rectangular 
+    crop frame that encompasses the lower half of
+    the image."""
+    dims = img.shape
+    center_row = int(dims[0] / 2)
+    quadrant_location = {
+        'top_left_x': 0,
+        'top_left_y': center_row,
+        'bottom_right_x': dims[1],
+        'bottom_right_y': dims[0]
+    }
+    return quadrant_location
 
 def bottom_left_quadrant(img):
     """returns the bounding vertices of a rectangular 
