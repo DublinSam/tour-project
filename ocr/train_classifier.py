@@ -70,7 +70,7 @@ def construct_training_image(paths, num_cols=3):
     
     for frame, ax in zip(frame_paths, axes):
         img = cv2.imread(root + frame, cv2.IMREAD_GRAYSCALE)
-        km_img = digit_region(img, templates['flag'])
+        km_img = digit_region(img, templates)
         rectangle = border_rectangle(km_img)
         top = top_border(km_img)
         divider = white_divider(km_img)

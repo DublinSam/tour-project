@@ -45,6 +45,7 @@ def get_frame_dims(input):
     dims = [int(dim.split(':')[1]) for dim in dims]
     dimensions = {'width': dims[0],
                   'height': dims[1]}
+    print('sar dimensions', dimensions)
     return dimensions
 
 def ffmpeg_format_time(time):
@@ -65,6 +66,7 @@ def get_dar_dimensions(src_video, DAR = (16.0 / 9.0)):
     sar_dimensions = get_frame_dims(src_video)
     dar_dimensions = {'width': sar_dimensions['height'] * DAR, 
                   'height': sar_dimensions['height']}
+    print('dar dimensions', dar_dimensions)
     return dar_dimensions
 
 def clean_msg(msg):
