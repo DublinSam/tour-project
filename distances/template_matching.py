@@ -28,6 +28,8 @@ def get_templates(paths):
     group3_path = paths['templates'] + 'group3.jpg'
     group4_path = paths['templates'] + 'group4.jpg'
     arriere_path = paths['templates'] + 'arriere.jpg'
+    tete_marker_path = paths['templates'] + 'tete_marker_frame.jpg'
+    poursuivants_path = paths['templates'] + 'poursuivants_marker_frame.jpg'
     km_path = paths['templates'] + 'km_sign.jpg'
 
     flag_template = cv2.imread(flag_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
@@ -38,6 +40,8 @@ def get_templates(paths):
     group3_template = cv2.imread(group3_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     group4_template = cv2.imread(group4_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     arriere_template = cv2.imread(arriere_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    tete_marker_template = cv2.imread(tete_marker_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    poursuivants_marker_template = cv2.imread(poursuivants_path, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     templates = {'km': km_template, 
                  'flag': flag_template, 
                  'breakaway': breakaway_template,
@@ -46,6 +50,8 @@ def get_templates(paths):
                  'group3':group3_template,
                  'group4':group4_template,
                  'arriere':arriere_template,
+                 'tete_marker_frame':tete_marker_template,
+                 'poursuivants_marker_frame':poursuivants_marker_template
                  }
     return templates
 
@@ -103,6 +109,16 @@ def contains_tete_template(img, templates, confidence=CONFIDENCE):
     cropped_img = crop_frame(img, quadrant)
     is_tete = contains_template(cropped_img, templates['tete'], confidence)
     return is_tete
+
+def is_tete_marker_frame(img, templates, confidence=CONFIDENCE):
+    is_tete_marker = contains_template(img, templates['tete_marker_frame'], confidence)
+    return is_tete_marker
+
+def is_poursuivants_marker_frame(img, templates, confidence=CONFIDENCE):
+    # we have to binarize the frame to deal with compression on black pixels
+    ret, binary_img =  cv2.threshold(img,50,255,cv2.THRESH_BINARY)
+    is_poursuivants_marker = contains_template(binary_img, templates['poursuivants_marker_frame'], confidence)
+    return is_poursuivants_marker
 
 def contains_group_positions(img, templates, confidence=CONFIDENCE):
     """returns true if the screen is annotated with a complete ranking of the 

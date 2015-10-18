@@ -75,9 +75,9 @@ def extract_confident_detections(img, img_name, dets, scores, cache):
     distance_to_go = find_number(img_name, cache['paths'], cache['model'], cache['templates'])
     gradient = find_gradient(cache['paths'], distance_to_go)
     bounding_boxes = get_bounding_boxes(dets)
-#    for i, box in enumerate(bounding_boxes):
-#            if scores[i] > 0.5:
-#                save_labeled_face(img_name, img, i, box, gradient, cache)
+    for i, box in enumerate(bounding_boxes):
+            if scores[i] > 0.5:
+                save_labeled_face(img_name, img, i, box, gradient, cache)
     confident_boxes = [pair[1] for pair in enumerate(bounding_boxes) if scores[pair[0]] > 0.5]
     store_bounding_boxes(img_name, confident_boxes, gradient, cache)
 

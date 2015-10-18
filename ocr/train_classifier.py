@@ -117,5 +117,5 @@ def save_model_labels(paths):
     responses = np.array(responses,np.float32)
     responses = responses.reshape((responses.size,1))
     print("labelling complete")
-    np.savetxt(MODEL_DIR + 'tdf_digit_samples.data',samples)
-    np.savetxt(MODEL_DIR + 'tdf_digit_responses.data',responses)
+    np.savetxt(paths['digit_model'] + 'tdf_digit_samples.data',samples)
+    np.savetxt(paths['digit_model'] + 'tdf_digit_responses.data',responses)

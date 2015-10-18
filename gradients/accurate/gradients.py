@@ -4,7 +4,7 @@ import numpy as np
 from file_utils import get_paths
 from xml.dom import minidom
 
-MEASUREMENT_OFFSET = 20
+MEASUREMENT_OFFSET = 0
 ELEVATION_WINDOW_LENGTH = 25
 GRADIENT_WINDOW_LENGTH = 3
 
@@ -83,4 +83,5 @@ def find_gradient(paths, distance_to_go):
     distances = [round(distance / 1000, 2) for distance in distances]
     target_distance = max(distances) - distance_to_go
     target_gradient = find_gradient_at_distance(target_distance, distances, gradients)
-    return round(target_gradient,1)
+    rounded_target = round(target_gradient, 1) 
+    return rounded_target 

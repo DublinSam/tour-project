@@ -14,6 +14,8 @@ from template_matching import contains_chequered_flag
 from template_matching import contains_group_positions
 from template_matching import contains_poursuivants_template
 from template_matching import is_distance_measured_in_km
+from template_matching import is_poursuivants_marker_frame 
+from template_matching import is_tete_marker_frame 
 
 from file_utils import get_img_paths_in_dir
 
@@ -59,7 +61,12 @@ class CameraFocus:
 
 
     def update_camera_state(self, img, img_name):
-        if not self.is_distance_labeled(img):
+        # First check for manually added marker frames
+        if is_tete_marker_frame(img, self.templates):
+            self.current_camera_state = Camera.Tete
+        elif is_poursuivants_marker_frame(img, self.templates):
+            self.current_camera_state = Camera.Poursuivants
+        elif not self.is_distance_labeled(img):
             self.current_camera_state = Camera.Rest
         else:
             self.update_breakaway_state(img, img_name)
