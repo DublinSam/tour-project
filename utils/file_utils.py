@@ -20,6 +20,7 @@ def get_paths(root_path, stage_id):
     paths['strava'] = root_path + 'gradient_data/raw/Stage' + str(stage_id) + ".tcx"
     paths['meta'] = root_path + 'meta/Stage' + str(stage_id) + '.csv'
     paths['stage'] = stage_str    
+    paths['annotations'] = root_path + 'camera_annotations/Stage' + str(stage_id) + '.csv'
     directories = ['tete', 'precis', 'faces', 'tmp_clusters', 'templates', 'fused', 
                    'digit_model', 'test_figures', 'digit_training_frames']
     for key in directories:

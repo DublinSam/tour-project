@@ -49,6 +49,8 @@ def classify(img_path, paths, model, templates):
     """Apply kNN with k = 1 to categorize each digit in the image."""
     preprocess(img_path, paths, templates)
     binary_img = apply_threshold_to_image(paths['test_figures'] + 'current_fig.jpg')
+    plt.imshow(binary_img)
+    
     contours = find_contours(binary_img)
     final_contours, final_results = [],[]
     for contour in contours:

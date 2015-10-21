@@ -1,11 +1,14 @@
 import os
 import cv2
+import csv
 import shutil
 import pickle
 import matplotlib.pyplot as plt
 
 from tqdm import *
 from file_utils import get_paths
+from time_utils import format_time
+from time_utils import get_time_from_path
 from digit_classifier import load_model
 from digit_classifier import find_number
 from template_matching import get_templates 
@@ -44,6 +47,7 @@ class CameraFocus:
         self.digit_model = load_model(self.paths)
         self.current_distance = None
         self.templates = get_templates(self.paths)
+        self.annotations = self.load_manual_annotations(self.paths)
 
     def get_camera_states(self):
         # First check if camera states log already exists
@@ -61,46 +65,20 @@ class CameraFocus:
 
 
     def update_camera_state(self, img, img_name):
-        # First check for manually added marker frames
-        if is_tete_marker_frame(img, self.templates):
-            self.current_camera_state = Camera.Tete
-        elif is_poursuivants_marker_frame(img, self.templates):
-            self.current_camera_state = Camera.Poursuivants
+        # First check for manual annotations        
+        time = get_time_from_path(img_name)
+        if time in self.annotations.keys():
+            self.update_annotated_state(time)
         elif not self.is_distance_labeled(img):
             self.current_camera_state = Camera.Rest
         else:
-            self.update_breakaway_state(img, img_name)
+            pass
 
-    def update_breakaway_state(self, img, img_name):
-        # reset the camera focus to the pursuers if the footage
-        # jumps
-        if self.did_footage_skip(img_name):
-            self.current_camera_state = Camera.Poursuivants
-
-        # First check for an annotation describing the spacing
-        # between all groups in the race. This often accompanies
-        # a switch of camera focus, but doesn't indicate which so
-        # we conservatively reset to Poursuivants
-        elif contains_group_positions(img, self.templates):
-            self.current_camera_state = Camera.Poursuivants
-        
-        elif contains_tete_template(img, self.templates):
+    def update_annotated_state(self, time):
+        if self.annotations[time] == 'T':
             self.current_camera_state = Camera.Tete
-
-        # If not, we check for an annotation that the camera is 
-        # focused on the pursuers.
-
-        elif contains_poursuivants_template(img, self.templates):
+        else:
             self.current_camera_state = Camera.Poursuivants
-
-        # Otherwise, we maintain the current state unless the 
-        # racing footage has just begun, in which case we assume 
-        # that the camera is following the head of the stage.
-        else: 
-            if self.current_camera_state == Camera.Rest:
-                self.current_camera_state = Camera.Tete
-            else:
-                pass # maintain the current state
 
     def did_footage_skip(self, img_name):
         """Sometimes the cycling footage jumps in time, making the 
@@ -129,6 +107,22 @@ class CameraFocus:
         transitions.""" 
         idx = range(len(self.camera_states_log))
         plt.plot(idx, self.camera_states_log, **kwargs)
+
+    def load_manual_annotations(self, paths):
+        """load manual annotations from csv import file"""
+        annotations = {}
+        with open(paths['annotations'], 'rU') as f:
+            reader = csv.reader(f)
+            next(reader, None) # skip headers
+            for row in reader:
+                hours = int(row[0])
+                mins = int(row[1])
+                secs = int(row[2])
+                state = row[3]
+                time = format_time(hours, mins, secs)
+                annotations[time] = state
+        return annotations
+                
 
     def save_camera_states(self):
         """pickle the camera states so that they can be 
