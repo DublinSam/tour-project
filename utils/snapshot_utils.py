@@ -14,6 +14,7 @@ def snapshot(input, output, stage_id, time, dimensions):
     snap_ps = subprocess.call(("ffmpeg", 
                                 "-ss", ffmpeg_time,
                                 "-noaccurate_seek",
+				"-threads", "1", # (cluster only runs single threaded)
                                 "-i", input,
                                 "-filter:v",
                                 "scale=" + str(dimensions['width']) 
