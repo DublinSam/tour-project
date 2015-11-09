@@ -1,7 +1,8 @@
 import sys
 from tete_frames import extract_tete_snapshots
+from camera import CameraFocus
 
-root_path = "/users/albanie/scratch/DVD/2014/"
+root_path = "/users/albanie/scratch/DVD/2012/"
 
 """ use the $TASK_ID variable passed to the script
 as an input argument to define the stage number."""

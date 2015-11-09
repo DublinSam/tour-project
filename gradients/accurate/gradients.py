@@ -70,6 +70,8 @@ def find_gradient_at_distance(target_distance, distances, gradients):
     closest_idx = distances.index(closest_marker)
     if closest_idx > MEASUREMENT_OFFSET:
         closest_idx = closest_idx - MEASUREMENT_OFFSET
+	# prevent indexing errors
+	closest_idx = min(closest_idx, len(gradients) - 1) 
     return gradients[closest_idx]
 
 def find_gradient(paths, distance_to_go):
