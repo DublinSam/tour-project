@@ -194,6 +194,8 @@ def get_contiguous_intervals(times):
     a second, returns a list of pairs of the form 
     (start, stop) defining the (inclusive) ends of 
     a contiguous time interval in 'times'."""
+    if not times:
+        return None
     head = tail = time_to_seconds(times[0])
     intervals = []
     idx = 1
