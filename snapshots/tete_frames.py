@@ -30,7 +30,7 @@ def get_tete_intervals(paths):
 def get_tete_target_frames(paths, step):
     intervals = get_tete_intervals(paths)
     if not intervals:
-        return None
+        return []
     target_lists = [get_times_in_interval(interval, step) for interval in intervals]
     targets = sum(target_lists, []) # flattens the list
     return targets
