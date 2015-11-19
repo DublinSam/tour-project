@@ -4,7 +4,6 @@ import numpy as np
 from file_utils import get_paths
 from xml.dom import minidom
 
-MEASUREMENT_OFFSET = 0
 ELEVATION_WINDOW_LENGTH = 25
 GRADIENT_WINDOW_LENGTH = 3
 
@@ -68,15 +67,15 @@ def find_gradient_at_distance(target_distance, distances, gradients):
     the given target_distance.""" 
     closest_marker = min(distances, key=lambda x:abs(x - target_distance)) 
     closest_idx = distances.index(closest_marker)
-    if closest_idx > MEASUREMENT_OFFSET:
-        closest_idx = closest_idx - MEASUREMENT_OFFSET
-	# prevent indexing errors
-	closest_idx = min(closest_idx, len(gradients) - 1) 
+    # prevent indexing errors
+    closest_idx = min(closest_idx, len(gradients) - 1) 
     return gradients[closest_idx]
 
 def find_gradient(paths, distance_to_go):
     """calculates the gradient of the given stage with 
     `distance_to_go` km remaining."""
+    print(paths['offset'])
+    distance_to_go = distance_to_go - paths['offset']
     elevations = get_elevations(paths)    
     distances = get_precise_distances(paths)
     gradients = calculate_gradients(elevations, distances)

@@ -1,4 +1,5 @@
 import os
+import csv
 
 def get_paths(root_path, stage_id):
     """returns all required paths and ensures that 
@@ -18,6 +19,7 @@ def get_paths(root_path, stage_id):
     paths['dlib_detector'] = root_path + 'dlib/cyclist_detector.svm'
     paths['digit_training_frames'] = root_path + 'ocr/digit_training_frames/'
     paths['strava'] = root_path + 'gradient_data/raw/Stage' + stage_str + ".tcx"
+    paths['offset'] = find_offset(root_path, stage_id)
     paths['meta'] = root_path + 'meta/Stage' + stage_str + '.csv'
     paths['stage'] = stage_str    
     paths['annotations'] = root_path + 'camera_annotations/Stage' + stage_str + '.csv'
@@ -27,6 +29,15 @@ def get_paths(root_path, stage_id):
         if not os.path.exists(paths[key]):
             os.makedirs(paths[key]) 
     return paths
+
+def find_offset(root_path, stage_id):
+    """returns the offset that calibrates gps data with 
+    official Tdf distances."""
+    calibration_path = root_path + 'gradient_data/stage_calibrations.csv'
+    with open(calibration_path, 'rU') as csvfile:
+        reader = csv.reader(csvfile)
+        offsets = [row[-1] for row in reader]
+    return float(offsets[int(stage_id)])
 
 def get_jpgs_in_dir(image_dir):
     """returns list of the .jpg files in the given
