@@ -12,7 +12,7 @@ import cv2
 from digit_classifier import load_model
 from file_utils import get_img_paths_in_dir
 from file_utils import get_paths
-from test_settings import ROOT_PATH_2012, ROOT_PATH_2013
+from test_settings import ROOT_PATH_2012, ROOT_PATH_2013, ROOT_PATH_2014
 from digit_classifier import find_number
 from extract_cyclist_faces import load_cache
 
@@ -63,6 +63,12 @@ class TestDigitClassifier(unittest.TestCase):
         expected_accuracy = 100
         self.assertEqual(expected_accuracy, accuracy)
 
+    def test_2014_classifier_accuracy(self):
+        """check classifier accuracy for the 2014 dataset."""
+        root_path = ROOT_PATH_2014
+        accuracy = find_classifier_accuracy(root_path)
+        expected_accuracy = 100
+        self.assertEqual(expected_accuracy, accuracy)
 
 if __name__ == "__main__":
     unittest.main()
