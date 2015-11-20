@@ -54,15 +54,15 @@ def classify(img_path, paths, model, templates):
     contours = find_contours(binary_img)
     final_contours, final_results = [],[]
     for contour in contours:
-        if 50 < cv2.contourArea(contour) < 4000:
+        if 100 < cv2.contourArea(contour) < 4000:
             [x, y, w, h] = cv2.boundingRect(contour)
-            if h > 25 and w < 50:
+            if h > 38 and (w > 10 and w < 50):
                 # cv2.rectangle(test_img, (x,y), (x+w, y+h), (255,0,0), 2)
                 roi = binary_img[y:y+h, x:x+w]
-                roi_small = cv2.resize(roi, (20,20))
-                roi_small = roi_small.reshape((1,400))
+                roi_small = cv2.resize(roi, (40,40))
+                roi_small = roi_small.reshape((1,-1))
                 roi_small = np.float32(roi_small)
-                retval, results, neigh_resp, dists = model.find_nearest(roi_small, k = 1)
+                retval, results, neigh_resp, dists = model.find_nearest(roi_small, k = 3)
                 final_contours.append(contour)
                 final_results.append(results[0][0])
     plt.close()

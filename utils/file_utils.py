@@ -17,7 +17,8 @@ def get_paths(root_path, stage_id):
     paths['digit_model'] = root_path + 'ocr/model/'
     paths['test_figures'] = root_path + 'ocr/test_figures/' + stage_str + '/'
     paths['dlib_detector'] = root_path + 'dlib/cyclist_detector.svm'
-    paths['digit_training_frames'] = root_path + 'ocr/digit_training_frames/'
+    paths['digit_training_frames'] = root_path + 'ocr/digit_frames/training/'
+    paths['digit_testing_frames'] = root_path + 'ocr/digit_frames/testing/'
     paths['strava'] = root_path + 'gradient_data/raw/Stage' + stage_str + ".tcx"
     paths['offset'] = find_offset(root_path, stage_id)
     paths['meta'] = root_path + 'meta/Stage' + stage_str + '.csv'

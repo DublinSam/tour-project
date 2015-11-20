@@ -15,7 +15,7 @@ def apply_threshold_to_image(path):
     with contour detection."""
     img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     img = ndimage.gaussian_filter(img, sigma=1)
-    ret, binary_img = cv2.threshold(img, 170, 255, cv2.THRESH_BINARY)
+    ret, binary_img = cv2.threshold(img, 202, 255, cv2.THRESH_BINARY)
     binary_img = np.invert(binary_img)
     return binary_img    
 

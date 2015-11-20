@@ -80,20 +80,6 @@ class CameraFocus:
         else:
             self.current_camera_state = Camera.Poursuivants
 
-    def did_footage_skip(self, img_name):
-        """Sometimes the cycling footage jumps in time, making the 
-        current camera focus state invalid.  We can check this by 
-        noticing a jump in the "km to go" sign."""
-        did_skip = False
-        if self.current_distance:
-            previous_distance = self.current_distance
-            self.current_distance = find_number(img_name, self.paths, self.digit_model, self.templates)
-            if previous_distance - self.current_distance > 0.15:
-                did_skip = True
-        else:
-            self.current_distance = find_number(img_name, self.paths, self.digit_model, self.templates)
-        return did_skip
-
     def is_distance_labeled(self, img):
         """returns true if the image contains BOTH a chequred flag 
         and the distance is measured in km."""

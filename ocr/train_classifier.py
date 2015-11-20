@@ -46,6 +46,7 @@ def show_training_digits_distribution(paths):
     path, jpgs = get_jpgs_in_dir(paths['digit_training_frames'])
     file_list = "".join([img_name[:-4] for img_name in jpgs])
     plot_histogram_of_digits(file_list)
+    print('number of training images is:', len(jpgs))
 
 def get_subplots(num_rows, num_cols):
     """returns a tuple (fig, axes) for producing subplots
@@ -86,7 +87,7 @@ def manually_label_digits(paths):
     """returns a tuple containing:
     'samples':  a list of shrunk digit images 
     'responses': a list of the label values (each a digit)"""
-    samples = np.empty((0,400))
+    samples = np.empty((0,1600))
     responses = [] # store the labels
     keys = [i for i in range(48,58)]
     img_path = paths['fused'] + 'digit_examples.jpg'
@@ -99,7 +100,7 @@ def manually_label_digits(paths):
             if  h > 25 and w < 60:
                 cv2.rectangle(binary_img_copy,(x,y),(x+w,y+h),(0,0,255),2)
                 roi = binary_img[y:y+h,x:x+w]
-                roi_small = cv2.resize(roi,(20,20))
+                roi_small = cv2.resize(roi,(40,40))
                 cv2.imshow('digit samples', binary_img_copy)
                 key = cv2.waitKey(0)
 
@@ -107,7 +108,7 @@ def manually_label_digits(paths):
                     cv2.destroyAllWindows()
                 elif key in keys:
                     responses.append(int(chr(key)))
-                    sample = roi_small.reshape((1,400))
+                    sample = roi_small.reshape((1,-1))
                     samples = np.append(samples,sample,0)
     return (samples, responses)
 
