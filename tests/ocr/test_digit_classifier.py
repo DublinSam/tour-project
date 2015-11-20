@@ -12,7 +12,7 @@ import cv2
 from digit_classifier import load_model
 from file_utils import get_img_paths_in_dir
 from file_utils import get_paths
-from test_settings import ROOT_PATH
+from test_settings import ROOT_PATH_2012
 from digit_classifier import find_number
 from extract_cyclist_faces import load_cache
 
@@ -25,14 +25,14 @@ class TestDigitClassifier(unittest.TestCase):
     def test_load_model(self):
         """check that load_model returns an instance of 
         a kNN classifier."""
-        paths = get_paths(ROOT_PATH, 1)
+        paths = get_paths(ROOT_PATH_2012, 1)
         model = load_model(paths)
         expected_type = type(cv2.KNearest())
         self.assertEqual(type(model), expected_type)
 
     def test_classifier_accuracy(self):
         """check that the classifier is accurate."""
-        paths = get_paths(ROOT_PATH, "1")
+        paths = get_paths(ROOT_PATH_2012, "1")
         img_names = get_img_paths_in_dir(paths['digit_testing_frames'])
         cache = load_cache(paths)
         test_nums = [get_distance_from_filename(img_name) for img_name in img_names]
