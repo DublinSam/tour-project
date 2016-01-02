@@ -13,7 +13,9 @@ from gradients import calculate_gradients
 from gradients import find_gradient_at_distance
 from gradients import find_gradient
 from file_utils import get_paths
-from test_settings import ROOT_PATH
+from test_settings import ROOT_PATH_2012, ROOT_PATH_2014
+
+
 
 class TestGradients(unittest.TestCase):
 
@@ -22,15 +24,15 @@ class TestGradients(unittest.TestCase):
         values of the correct length."""
         stage_id = 5
         target = "distances"
-        expected_num_distances = 2876
-        paths = get_paths(ROOT_PATH, stage_id)
+        expected_num_distances = 6034
+        paths = get_paths(ROOT_PATH_2012, stage_id)
         distances = get_xml_values(paths, target)
         self.assertEqual(expected_num_distances, len(distances))
 
     def test_get_elevations(self):
         """check that get_elevations returns a list of floats"""
         stage_id = 3
-        paths = get_paths(ROOT_PATH, stage_id)
+        paths = get_paths(ROOT_PATH_2012, stage_id)
         elevations = get_elevations(paths)
         self.assertTrue(isinstance(elevations[7], float))
 
@@ -40,9 +42,9 @@ class TestGradients(unittest.TestCase):
         longer than the official stage distance becausee it includes
         the neutral zone at the start."""
         stage_id = 14
-        paths = get_paths(ROOT_PATH, stage_id)
+        paths = get_paths(ROOT_PATH_2012, stage_id)
         precise_distances = get_precise_distances(paths)
-        expected_distance = 185082.7 
+        expected_distance = 194769.4 
         full_distance = precise_distances[-1]
         self.assertEqual(expected_distance, full_distance)
 
@@ -61,40 +63,6 @@ class TestGradients(unittest.TestCase):
         gradient2 = find_gradient_at_distance(target_distance2, distances, gradients)
         self.assertEqual(expected_gradient1, gradient1)
         self.assertEqual(expected_gradient2, gradient2)
-
-    def test_tcx_files(self):
-        """check the distances for each tcx file to make sure they 
-        are correct."""
-        stage_data = [{'stage_id': 1, 'length': 206.78},
-                      {'stage_id': 2, 'length': 209.00},
-                      {'stage_id': 3, 'length': 160.41},
-                      {'stage_id': 4, 'length': 173.11},
-                      {'stage_id': 5, 'length': 162.03},
-                      {'stage_id': 6, 'length': 198.98},
-                      {'stage_id': 7, 'length': 243.3},
-                      {'stage_id': 8, 'length': 167.84},
-                      {'stage_id': 9, 'length': 173.56},
-                      {'stage_id': 10, 'length': 177.26},
-                      {'stage_id': 11, 'length': 197.67},
-                      {'stage_id': 12, 'length': 192.85},
-                      {'stage_id': 13, 'length': 206.7},
-                      {'stage_id': 14, 'length': 185.08},
-                      {'stage_id': 15, 'length': 223.98},
-                      {'stage_id': 16, 'length': 244.13},
-                      {'stage_id': 17, 'length': 128.79},
-                      {'stage_id': 18, 'length': 152.85},
-                      {'stage_id': 19, 'length': 211.56},
-                      {'stage_id': 20, 'length': 54.1},
-                      {'stage_id': 21, 'length': 147.87},
-                      ]
-        for data in stage_data:
-            paths = get_paths(ROOT_PATH, data['stage_id'])
-            distances = get_precise_distances(paths)
-            length = round(max(distances) / 1000, 2)
-            expected_length = data['length']
-            self.assertEqual(expected_length, length)
-        
-
 
 if __name__ == "__main__":
     unittest.main()
