@@ -7,6 +7,7 @@ def get_paths(root_path, stage_id):
     paths = {}
     stage_str = str(stage_id)
     paths['tete'] = root_path + 'tete_frames/' + stage_str + '/'
+    paths['dense_tete'] = root_path + 'dense_tete_frames/' + stage_str + '/'
     paths['log'] = root_path + 'camera_states/' + stage_str + '.pickle'
     paths['precis'] = root_path + 'precis_frames/' + stage_str + '/'
     paths['src_video'] = root_path + 'raw/Stage' + stage_str +'.m4v'
@@ -22,9 +23,10 @@ def get_paths(root_path, stage_id):
     paths['strava'] = root_path + 'gradient_data/raw/Stage' + stage_str + ".tcx"
     paths['offset'] = find_offset(root_path, stage_id)
     paths['meta'] = root_path + 'meta/Stage' + stage_str + '.csv'
+    paths['shot_boundaries'] = root_path + 'shot_boundaries/Stage' + stage_str + '.csv'
     paths['stage'] = stage_str    
     paths['annotations'] = root_path + 'camera_annotations/Stage' + stage_str + '.csv'
-    directories = ['tete', 'precis', 'faces', 'tmp_clusters', 'templates', 'fused', 
+    directories = ['tete', 'dense_tete', 'precis', 'faces', 'tmp_clusters', 'templates', 'fused', 
                    'digit_model', 'test_figures', 'digit_training_frames']
     for key in directories:
         if not os.path.exists(paths[key]):
