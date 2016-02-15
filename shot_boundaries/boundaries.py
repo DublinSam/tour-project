@@ -1,7 +1,7 @@
 import csv
+import cv2
 import numpy as np
 from datetime import datetime
-import cycling.ocr.cv2 as cv2
 from cycling.utils.file_utils import get_img_paths_in_dir, get_paths
 from cycling.utils.time_utils import get_time_from_path
 
