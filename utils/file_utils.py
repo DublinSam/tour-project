@@ -24,10 +24,11 @@ def get_paths(root_path, stage_id):
     paths['offset'] = find_offset(root_path, stage_id)
     paths['meta'] = root_path + 'meta/Stage' + stage_str + '.csv'
     paths['shot_boundaries'] = root_path + 'shot_boundaries/Stage' + stage_str + '.csv'
+    paths['face_shots'] = root_path + 'face_shots/' + stage_str + '/'
     paths['stage'] = stage_str    
     paths['annotations'] = root_path + 'camera_annotations/Stage' + stage_str + '.csv'
     directories = ['tete', 'dense_tete', 'precis', 'faces', 'tmp_clusters', 'templates', 'fused', 
-                   'digit_model', 'test_figures', 'digit_training_frames']
+                   'digit_model', 'test_figures', 'digit_training_frames', 'face_shots']
     for key in directories:
         if not os.path.exists(paths[key]):
             os.makedirs(paths[key]) 

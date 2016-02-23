@@ -12,7 +12,7 @@ def save_boundaries(root_path, stage_id):
     """saves the shot boundaries data associated with a specific
     stage as a csv."""
     paths = get_paths(root_path, stage_id)
-    img_paths = get_img_paths_in_dir(paths['dense_tete'])
+    img_paths = sorted(get_img_paths_in_dir(paths['dense_tete']))
     shot_boundaries = find_boundaries(img_paths)
 
     with open(paths['shot_boundaries'], 'wb') as f:
@@ -44,7 +44,6 @@ def find_boundaries(img_paths):
         if dist > 5:
             if time_diff(shot_boundaries[-1], time) > MIN_SHOT_LENGTH:
                 shot_boundaries.append(time)
-                print(time)
     return shot_boundaries
 
 def time_diff(earlier, later):

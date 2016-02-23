@@ -1,10 +1,11 @@
 import os
 import subprocess
 import numpy as np
+import pandas as pd
 
 def get_time_from_path(path):
     """extract the formatted time from a full
-    image path of the form /a/b/c/d/.../HH:MM:SS.jpg"""
+    image path of the form /a/b/c/d/.../HH:MM:SS:MMM.jpg"""
     stage_time = os.path.split(path)[1][:-4]
     formatted_time = stage_time.split('-')[1]
     return formatted_time
@@ -211,3 +212,13 @@ def get_contiguous_intervals(times):
     intervals.append((seconds_to_time(head), 
                       seconds_to_time(tail)))
     return intervals
+
+def convert_to_pandas_timestamp(time):
+    """returns a pandas timestamp created using
+    an input time of the format HH:MM:SS:MMM"""
+    anchor_day = '2000/00/00 ' # choice is arbitrary, but necessary for time comparison
+    hours = time[0:2]
+    mins = time[3:5]
+    secs = time[6:8]
+    milsecs = time[9:12]
+    return pd.to_datetime(anchor_day + hours + ':' + mins + ':' + secs + '.' + milsecs)
