@@ -216,9 +216,11 @@ def get_contiguous_intervals(times):
 def convert_to_pandas_timestamp(time):
     """returns a pandas timestamp created using
     an input time of the format HH:MM:SS:MMM"""
-    anchor_day = '2000/00/00 ' # choice is arbitrary, but necessary for time comparison
+    anchor_day = '2000-01-01 ' # choice is arbitrary, but necessary for time comparison
     hours = time[0:2]
     mins = time[3:5]
     secs = time[6:8]
     milsecs = time[9:12]
-    return pd.to_datetime(anchor_day + hours + ':' + mins + ':' + secs + '.' + milsecs)
+    time_string = anchor_day + hours + ':' + mins + ':' + secs + '.' + milsecs
+    pd.to_datetime(time_string)
+    return pd.to_datetime(time_string)

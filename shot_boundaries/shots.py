@@ -33,12 +33,20 @@ def get_meta_information(paths):
     meta = {'times': times, 'boxes': boxes, 'gradients': gradients}
     return meta
 
-def format_path(root, stage_id, time, box_idx, gradient):
-    """returns a formatted file path"""
+def format_path(root, stage_id, time, box_idx, gradient, box=None):
+    """returns a formatted file path.  If a bounding box is 
+    specified, its coordinates are encoded into the path"""
     path = (root + str(stage_id) 
                 + '-' + time
                 + ':' + str(box_idx) + ':' 
-                + str(gradient) + '.jpg')
+                + str(gradient))
+    if box:
+        path = (path + ':'
+                + str(box['top_left_x']) + ':'
+                + str(box['top_left_y']) + ':'
+                + str(box['bottom_right_x']) + ':'
+                + str(box['bottom_right_y']))
+    path = path + '.jpg'
     return path
 
 def is_valid_box(box):
@@ -57,12 +65,12 @@ def get_shot_folder_path(paths, shot_idx, gradient):
         os.makedirs(shot_folder_path)
     return shot_folder_path
 
-def add_face_to_shot(time, stage_id, shot_idx, box_idx, paths, gradient):
+def add_face_to_shot(time, stage_id, shot_idx, box_idx, paths, gradient, box):
     """adds the face detected at the given time to the given shot"""
     src_root = paths['faces']
     src_path = format_path(src_root, stage_id, time, box_idx, gradient)
     dest_root = get_shot_folder_path(paths, shot_idx, gradient)
-    dest_path = format_path(dest_root, stage_id, time, box_idx, gradient)        
+    dest_path = format_path(dest_root, stage_id, time, box_idx, gradient, box)        
     shutil.copyfile(src_path, dest_path)
 
 def find_shot_id(time, boundaries):
@@ -89,4 +97,4 @@ def group_faces_by_shot(root_path, stage_id):
         gradient = meta['gradients'][time_idx]
         for box_idx, box in enumerate(eval(meta['boxes'][time_idx])):
             if is_valid_box(box):
-                add_face_to_shot(meta['times'][time_idx], stage_id, shot_idx, box_idx, paths, gradient)
+                add_face_to_shot(meta['times'][time_idx], stage_id, shot_idx, box_idx, paths, gradient, box)
